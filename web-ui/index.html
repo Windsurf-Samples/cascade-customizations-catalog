@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="css/components.css?v=20250815-tags" rel="stylesheet">
     <style>
         .hero-bg {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
@@ -419,14 +420,14 @@
 
     <!-- Modal for viewing customization details -->
     <div id="customizationModal" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 items-center justify-center p-4">
-        <div class="bg-white rounded-lg max-w-4xl w-full max-h-full overflow-hidden">
+        <div class="bg-white rounded-lg max-w-4xl w-full max-h-full overflow-hidden modal-card">
             <div class="flex justify-between items-center p-6 border-b">
                 <h2 id="modalTitle" class="text-2xl font-bold"></h2>
                 <button id="closeModal" class="text-gray-500 hover:text-gray-700">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
-            <div id="modalScrollArea" class="p-6 overflow-y-auto max-h-96">
+            <div id="modalScrollArea" class="p-6 overflow-y-auto flex-1 min-h-0">
                 <div id="modalRawSection" class="mt-2 mb-6 rounded-lg border border-gray-200 bg-white shadow-sm">
                     <div id="modalRawHeader" class="flex items-center justify-between px-3 py-2 border-b bg-gray-50 rounded-t-lg">
                         <div class="flex items-center gap-2">
@@ -453,13 +454,11 @@
                     </div>
                 </div>
                 <div class="flex gap-2">
-                    <button id="downloadBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-all">
-                        <i class="fas fa-download mr-2"></i>
-                        Download
+                    <button id="downloadBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md transition-all text-sm whitespace-nowrap">
+                        <i class="fas fa-download mr-1"></i> Download
                     </button>
-                    <button id="copyBtn" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-all">
-                        <i class="fas fa-copy mr-2"></i>
-                        Copy
+                    <button id="copyBtn" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-md transition-all text-sm whitespace-nowrap">
+                        <i class="fas fa-copy mr-1"></i> Copy
                     </button>
                 </div>
             </div>
@@ -483,6 +482,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/plugins/autoloader/prism-autoloader.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-    <script src="app.js?v=20250811i"></script>
+    <script type="module" src="js/app.js?v=20250815-rawfix"></script>
 </body>
 </html>
