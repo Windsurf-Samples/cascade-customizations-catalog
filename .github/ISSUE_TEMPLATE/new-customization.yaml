@@ -1,64 +1,267 @@
-name: New Customization
-description: Propose a new Customization.
-title: "[New Customization]: "
-labels: ["triage", "add"]
-projects: ["octo-org/1", "octo-org/44"]
-assignees:
-  - octocat
+name: Customization Proposal
+description: Suggest a new Rule or Workflow for the Cascade Customizations Catalog
+title: "[Customization Proposal]: <short title>"
+labels:
+  - triage
+  - proposal
+assignees: []
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to fill out this bug report!
+        Thank you for proposing a new Cascade customization! Please provide the required information below.
+        
+  # Required Docs
   - type: input
-    id: contact
+    id: customization_title
     attributes:
-      label: Contact Details
-      description: How can we get in touch with you if we need more info?
-      placeholder: ex. email@example.com
+      label: Title of Customization
+      description: Short, clear title for your rule or workflow
+      placeholder: e.g., "Java Style Guidelines"
+    validations:
+      required: true
+
+  - type: textarea
+    id: customization_description
+    attributes:
+      label: Description of Customization
+      description: What does this customization do and why is it useful?
+      placeholder: Provide a concise overview of the customization
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      description: Select whether this is a Rule or a Workflow
+      options:
+        - Rule
+        - Workflow
+    validations:
+      required: true
+
+  - type: dropdown
+    id: rule_subcategory
+    attributes:
+      label: Rule Subcategory (only if Category = Rule)
+      description: For rules, choose the subcategory. Not required for workflows.
+      options:
+        - framework
+        - general
+        - language
+        - security
+        - style
     validations:
       required: false
-  - type: textarea
-    id: what-happened
-    attributes:
-      label: What happened?
-      description: Also tell us, what did you expect to happen?
-      placeholder: Tell us what you see!
-      value: "A bug happened!"
-    validations:
-      required: true
+
   - type: dropdown
-    id: version
+    id: labels
     attributes:
-      label: Version
-      description: What version of our software are you running?
-      options:
-        - 1.0.2 (Default)
-        - 1.0.3 (Edge)
-      default: 0
-    validations:
-      required: true
-  - type: dropdown
-    id: browsers
-    attributes:
-      label: What browsers are you seeing the problem on?
+      label: Applicable Tags (Labels)
+      description: "Choose any applicable labels. See the full list and guidance: https://github.com/Windsurf-Samples/cascade-customizations-catalog/blob/main/docs/labels.md"
       multiple: true
       options:
-        - Firefox
-        - Chrome
-        - Safari
-        - Microsoft Edge
-  - type: textarea
-    id: logs
+        # Languages
+        - javascript
+        - typescript
+        - python
+        - java
+        - csharp
+        - cpp
+        - rust
+        - go
+        - php
+        - ruby
+        - swift
+        - kotlin
+        - dart
+        # Frameworks & Libraries
+        - react
+        - vue
+        - angular
+        - svelte
+        - nextjs
+        - nuxtjs
+        - express
+        - fastapi
+        - django
+        - flask
+        - spring
+        - dotnet
+        - laravel
+        - rails
+        # Technologies & Tools
+        - docker
+        - kubernetes
+        - git
+        - github
+        - gitlab
+        - jenkins
+        - circleci
+        - github-actions
+        - aws
+        - azure
+        - gcp
+        - terraform
+        - ansible
+        - nginx
+        - apache
+        - redis
+        - mongodb
+        - postgresql
+        - mysql
+        - elasticsearch
+        - rabbitmq
+        - kafka
+        - graphql
+        - rest
+        - grpc
+        - webpack
+        - vite
+        - babel
+        - eslint
+        - prettier
+        - jest
+        - cypress
+        - playwright
+        - storybook
+        - figma
+        - postman
+        - swagger
+        - prometheus
+        - grafana
+        - sentry
+        - datadog
+        # Development Areas
+        - frontend
+        - backend
+        - fullstack
+        - mobile
+        - desktop
+        - web
+        - api
+        - database
+        - devops
+        - cloud
+        # Practices & Methodologies
+        - testing
+        - security
+        - performance
+        - accessibility
+        - documentation
+        - code-review
+        - refactoring
+        - debugging
+        - monitoring
+        - logging
+        # Project Types
+        - startup
+        - enterprise
+        - open-source
+        - prototype
+        - production
+        - legacy
+        # Workflow Types
+        - setup
+        - deployment
+        - ci-cd
+        - maintenance
+        - migration
+        - backup
+        # Rule Activation Types
+        - always-on
+        - model-decision
+        - glob-based
+        - manual
+        # Difficulty Levels
+        - beginner
+        - intermediate
+        - advanced
+        - expert
+        # Team Roles
+        - developer
+        - team-lead
+        - architect
+        - qa
+        - designer
+    validations:
+      required: true
+
+  - type: markdown
     attributes:
-      label: Relevant log output
-      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
-      render: shell
+      value: |
+        Location mapping:
+        - Rules will live under `.windsurf/rules/<subcategory>/`
+        - Workflows will live under `.windsurf/workflows/`
+
+  # Example or Full Details
+  - type: input
+    id: example_link
+    attributes:
+      label: Example Link
+      description: Link to an existing example rule/workflow in an open-source repo
+      placeholder: https://github.com/<owner>/<repo>/path/to/example
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        If you do NOT have an example to link, please fill out the details below.
+
+  - type: input
+    id: activation_mode
+    attributes:
+      label: Conditional Activation (Rules only)
+      description: "If Rule, specify activation mode and any description/glob. Examples: `model-decision`, `glob-based` with pattern(s) like `src/**/*.ts`"
+      placeholder: 'e.g., model-decision (when editing .java files) OR glob-based: src/**/*.ts'
+    validations:
+      required: false
+
+  - type: textarea
+    id: customization_content
+    attributes:
+      label: Customization Content
+      description: Paste the full content of the Rule or Workflow if link not provided.
+      placeholder: |
+        ---
+        description: ...
+        labels: ...
+        author: ...
+        activation mode: ...
+        ---
+        # Title
+        Customization content...
+    validations:
+      required: false
+
+  # Optional Docs
+  - type: textarea
+    id: usage_instructions
+    attributes:
+      label: Usage Instructions (Optional)
+      description: Any setup or usage steps users should follow
+      placeholder: Step-by-step instructions
+    validations:
+      required: false
+
+  - type: textarea
+    id: usage_examples
+    attributes:
+      label: Usage Examples (Optional)
+      description: Add demonstrations of how the customization can be used
+      placeholder: Links or descriptions of screenshots/GIFs
+    validations:
+      required: false
+
   - type: checkboxes
     id: terms
     attributes:
-      label: Code of Conduct
-      description: By submitting this issue, you agree to follow our [Code of Conduct](https://example.com). 
+      label: Terms and checks
+      description: Please confirm the following
       options:
-        - label: I agree to follow this project's Code of Conduct
+        - label: I confirm this contribution can be shared under the repository's license
+          required: true
+        - label: I agree to follow the project's Code of Conduct
           required: true
