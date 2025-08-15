@@ -6,9 +6,7 @@ A community-driven repository of sample rules and workflows for Windsurf Cascade
 
 This repository serves as a centralized hub for the Windsurf community to share, discover, and contribute reference customizations that enhance Cascade. 
 
-This catalog is intended to serve as:
-1. A central location for the Windsurf community to aggregate sample rules and workflows
-2. A reference repository structure that Enterprises can use to catalog and distribute proprietary and internal Cascade Customizations
+In addition, this repository structure can be used as a reference for Enterprises to use to catalog and distribute proprietary/internal Cascade Customizations
 
 ## What are Customizations?
 
