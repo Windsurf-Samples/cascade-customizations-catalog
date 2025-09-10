@@ -1,5 +1,6 @@
 import { MetadataExtractor } from './MetadataExtractor.js?v=final';
 import { DateUtils } from '../utils/DateUtils.js?v=final';
+import { BundleResolver } from './BundleResolver.js?v=manifest';
 
 /**
  * Handles data loading and processing with environment-aware path resolution
@@ -9,6 +10,7 @@ export class DataLoader {
         this.isGitHubPages = window.location.hostname.includes('github.io');
         this.basePath = this.getBasePath();
         this.fileExtension = this.isGitHubPages ? '.html' : '.md';
+        this.bundleResolver = new BundleResolver(this);
     }
     
     getBasePath() {
@@ -46,15 +48,33 @@ export class DataLoader {
         const customizations = [];
         
         try {
-            // Load rules
             const rulesData = await this.loadCustomizationsFromDirectory('rules');
             customizations.push(...rulesData);
             
-            // Load workflows
             const workflowsData = await this.loadCustomizationsFromDirectory('workflows');
             customizations.push(...workflowsData);
             
-            console.log(`Loaded ${customizations.length} customizations total`);
+            const bundles = await this.bundleResolver.loadBundles();
+            for (const bundle of bundles) {
+                customizations.push({
+                    id: bundle.id,
+                    title: bundle.name,
+                    description: bundle.description,
+                    type: 'bundle',
+                    category: 'Team Bundles',
+                    labels: bundle.metadata?.tags || [],
+                    author: bundle.maintainers?.[0] || 'Team',
+                    activation: 'bundle',
+                    filename: 'bundle.yaml',
+                    path: bundle.manifestPath,
+                    windsurfPath: bundle.manifestPath,
+                    modified: bundle.metadata?.last_updated || new Date().toISOString(),
+                    bundle: bundle,
+                    bundleCustomizations: await this.bundleResolver.resolveBundleDependencies(bundle)
+                });
+            }
+            
+            console.log(`Loaded ${customizations.length} items total (including bundles)`);
             return customizations;
         } catch (error) {
             console.error('Failed to load customizations:', error);
