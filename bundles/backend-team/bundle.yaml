@@ -6,21 +6,25 @@ maintainers:
 
 dependencies:
   rules:
-    - path: "language/java.md"
+    - path: "windsurf/rules/java.md"
       version: ">=1.0.0"
       activation: "glob"
       globs: "*.java"
       description: "Java coding standards and best practices"
-    - path: "security/secure-coding.md"
+    - path: "windsurf/rules/secure-coding.md"
       version: ">=1.0.0"
       activation: "always-on"
       description: "Security practices for backend services"
+    - path: "windsurf/rules/code-review-checklist.md"
+      version: ">=1.0.0"
+      activation: "manual"
+      description: "Comprehensive code review checklist"
       
   workflows:
-    - path: "workflows/setup/dev-environment-setup.md"
+    - path: "windsurf/workflows/dev-environment-setup.md"
       version: ">=1.0.0"
       description: "Development environment configuration for backend services"
-    - path: "workflows/maintenance/debugging-issues.md"
+    - path: "windsurf/workflows/debugging-issues.md"
       version: ">=1.0.0"
       description: "Systematic debugging approach for backend issues"
 
@@ -32,3 +36,6 @@ metadata:
   team_size: "6-10 developers"
   last_updated: "2024-01-15"
   use_cases: ["REST APIs", "microservices", "data processing"]
+  dependencies_count: 5
+  rules_count: 3
+  workflows_count: 2

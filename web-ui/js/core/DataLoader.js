@@ -1,6 +1,7 @@
 import { MetadataExtractor } from './MetadataExtractor.js?v=final';
 import { DateUtils } from '../utils/DateUtils.js?v=final';
 import { BundleResolver } from './BundleResolver.js?v=20250911-yamlfix';
+import { DirectoryScanner } from '../utils/DirectoryScanner.js?v=dynamic';
 
 /**
  * Handles data loading and processing with environment-aware path resolution
@@ -11,6 +12,7 @@ export class DataLoader {
         this.basePath = this.getBasePath();
         this.fileExtension = this.isGitHubPages ? '.html' : '.md';
         this.bundleResolver = new BundleResolver(this);
+        this.directoryScanner = new DirectoryScanner(this.isGitHubPages, this.basePath, this.fileExtension);
         
         this.enableBundleVisualization = true;
         this.enableNewPathResolution = true;
@@ -88,84 +90,38 @@ export class DataLoader {
     async loadCustomizationsFromDirectory(type) {
         const customizations = [];
         
-        // Define actual directory structure
-        const directories = type === 'rules' 
-            ? ['framework', 'language', 'security', 'style']
-            : ['maintenance', 'setup'];
+        try {
+            const discoveredFiles = await this.directoryScanner.discoverFiles(type);
             
-        for (const dir of directories) {
-            try {
-                const items = await this.loadFromSubdirectory(type, dir);
-                customizations.push(...items);
-            } catch (error) {
-                console.warn(`Failed to load from ${type}/${dir}:`, error);
+            for (const fileInfo of discoveredFiles) {
+                try {
+                    const item = await this.loadSingleCustomization(fileInfo, type, fileInfo.subdir);
+                    if (item) customizations.push(item);
+                } catch (error) {
+                    console.warn(`Failed to load ${fileInfo.filename}:`, error);
+                }
             }
+        } catch (error) {
+            console.error(`Failed to discover files for ${type}:`, error);
         }
         
         return customizations;
     }
     
     async loadFromSubdirectory(type, subdir) {
-        const items = [];
-        
-        // Since there are no index files, we'll use a predefined list of known files
-        const knownFiles = this.getKnownFiles(type, subdir);
-        
-        for (const fileInfo of knownFiles) {
-            try {
-                const item = await this.loadSingleCustomization(fileInfo, type, subdir);
-                if (item) items.push(item);
-            } catch (error) {
-                console.warn(`Failed to load ${fileInfo.filename}:`, error);
-            }
-        }
-        
-        return items;
+        console.warn('loadFromSubdirectory is deprecated - use DirectoryScanner instead');
+        return [];
     }
     
-    getKnownFiles(type, subdir) {
-        // Define the actual files that exist in the repository
-        const fileMap = {
-            'rules': {
-                'framework': [
-                    { title: 'React Best Practices', filename: 'react.md' }
-                ],
-                'language': [
-                    { title: 'Java Development Guidelines', filename: 'java.md' },
-                    { title: 'TypeScript Best Practices', filename: 'typescript.md' }
-                ],
-                'security': [
-                    { title: 'Secure Coding Practices', filename: 'secure-coding.md' }
-                ],
-                'style': [
-                    { title: 'Code Review Checklist', filename: 'code-review-checklist.md' },
-                    { title: 'Coding Best Practices', filename: 'coding-best-practices.md' }
-                ]
-            },
-            'workflows': {
-                'maintenance': [
-                    { title: 'Debugging Issues Workflow', filename: 'debugging-issues.md' }
-                ],
-                'setup': [
-                    { title: 'Development Environment Setup', filename: 'dev-environment-setup.md' },
-                    { title: 'Node.js Project Setup', filename: 'node-project-setup.md' }
-                ]
-            }
-        };
-        
-        return fileMap[type]?.[subdir] || [];
-    }
     
-    async loadSingleCustomization(link, type, subdir) {
-        const baseName = link.filename.replace(/\.md$/i, '');
-        const filePath = this.isGitHubPages
-            ? `${this.basePath}/docs/${type}/${subdir}/${baseName}${this.fileExtension}`
-            : `customizations/${subdir}/${baseName}.md`;
-            
-        // Source path for download/copy/raw viewer: point to customizations sources
+    async loadSingleCustomization(fileInfo, type, subdir) {
+        const baseName = fileInfo.filename.replace(/\.md$/i, '');
+        
+        const filePath = fileInfo.displayPath || `${this.basePath}/docs/${type}/${subdir}/${baseName}${this.fileExtension}`;
+        
         const windsurfPath = this.isGitHubPages
-            ? this.getRawGitHubUrl(`customizations/${subdir}/${baseName}.md`)
-            : `customizations/${subdir}/${baseName}.md`;
+            ? this.getRawGitHubUrl(`.windsurf/${type}/${subdir ? subdir + '/' : ''}${baseName}.md`)
+            : `${this.basePath}/.windsurf/${type}/${subdir ? subdir + '/' : ''}${baseName}.md`;
         
         try {
             const response = await fetch(filePath);
@@ -190,8 +146,8 @@ export class DataLoader {
             const description = this.extractDescription(content);
             
             return {
-                id: `${type}-${subdir}-${link.filename.replace('.md', '')}`,
-                title: link.title,
+                id: `${type}-${subdir}-${fileInfo.filename.replace('.md', '')}`,
+                title: fileInfo.title,
                 description: description,
                 type: type,
                 category: this.formatCategory(metadata.category || subdir),
@@ -204,7 +160,7 @@ export class DataLoader {
                 modified: DateUtils.formatDate(metadata.modified || new Date().toISOString())
             };
         } catch (error) {
-            console.warn(`Failed to process ${link.filename}:`, error);
+            console.warn(`Failed to process ${fileInfo.filename}:`, error);
             return null;
         }
     }
