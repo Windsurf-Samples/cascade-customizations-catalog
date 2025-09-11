@@ -1,6 +1,6 @@
 import { MetadataExtractor } from './MetadataExtractor.js?v=final';
 import { DateUtils } from '../utils/DateUtils.js?v=final';
-import { BundleResolver } from './BundleResolver.js?v=manifest';
+import { BundleResolver } from './BundleResolver.js?v=20250911-yamlfix';
 import { DirectoryScanner } from '../utils/DirectoryScanner.js?v=dynamic';
 
 /**
@@ -13,6 +13,9 @@ export class DataLoader {
         this.fileExtension = this.isGitHubPages ? '.html' : '.md';
         this.bundleResolver = new BundleResolver(this);
         this.directoryScanner = new DirectoryScanner(this.isGitHubPages, this.basePath, this.fileExtension);
+        
+        this.enableBundleVisualization = true;
+        this.enableNewPathResolution = true;
     }
     
     getBasePath() {
@@ -157,7 +160,7 @@ export class DataLoader {
                 modified: DateUtils.formatDate(metadata.modified || new Date().toISOString())
             };
         } catch (error) {
-            console.warn(`Failed to process ${link.filename}:`, error);
+            console.warn(`Failed to process ${fileInfo.filename}:`, error);
             return null;
         }
     }
