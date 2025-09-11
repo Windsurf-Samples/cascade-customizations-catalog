@@ -109,8 +109,12 @@ export class BundleResolver {
                         currentArray = currentSection[cleanKey];
                         currentItem = null;
                     }
-                }else if (indent >= 6 && currentItem) {
-                    currentItem[cleanKey] = cleanValue;
+                } else if (indent >= 4 && currentItem) {
+                    if (cleanKey === 'globs' && cleanValue) {
+                        currentItem[cleanKey] = cleanValue;
+                    } else {
+                        currentItem[cleanKey] = cleanValue;
+                    }
                 }
             } else if (trimmed.startsWith('-') && currentArray !== null) {
                 const content = trimmed.substring(1).trim();
@@ -123,6 +127,10 @@ export class BundleResolver {
                 } else if (content) {
                     currentArray.push(content);
                     currentItem = null;
+                } else {
+                    const item = {};
+                    currentArray.push(item);
+                    currentItem = item;
                 }
             }
         }
@@ -391,11 +399,11 @@ export class BundleResolver {
         
         const displayPath = this.dataLoader.isGitHubPages
             ? `${this.dataLoader.basePath}/bundles/${bundleName}/windsurf/${subType}/${baseName}${this.dataLoader.fileExtension}`
-            : `${this.dataLoader.basePath}/bundles/${bundleName}/windsurf/${subType}/${baseName}.md`;
+            : `bundles/${bundleName}/windsurf/${subType}/${filename}`;
             
         const windsurfPath = this.dataLoader.isGitHubPages
             ? this.dataLoader.getRawGitHubUrl(`bundles/${bundleName}/windsurf/${subType}/${filename}`)
-            : `${this.dataLoader.basePath}/bundles/${bundleName}/windsurf/${subType}/${filename}`;
+            : `bundles/${bundleName}/windsurf/${subType}/${filename}`;
         
         try {
             const response = await fetch(displayPath);

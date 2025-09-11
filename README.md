@@ -116,7 +116,7 @@ metadata:
 ## Browse the Catalog
 
 ### 🌐 Web Interface
-**[Browse the Catalog Online](https://windsurf-samples.github.io/cascade-customizations-catalog/web-ui/index.html)**
+**[Browse the Catalog Online](https://cognitionteam20scavenger.github.io/cascade-customizations-catalog/web-ui/index.html)**
 
 Use our interactive web interface to explore team-focused bundles and individual customizations. The web catalog provides:
 
@@ -170,7 +170,7 @@ Check the `bundle.yaml` file to understand:
 5. **Version Control**: Use the bundle manifest system to track versions and dependencies
 
 ### For Individual Use
-1. **Browse Online**: Visit the [web catalog](https://windsurf-samples.github.io/cascade-customizations-catalog/web-ui/index.html) to explore bundles and individual customizations
+1. **Browse Online**: Visit the [web catalog](https://cognitionteam20scavenger.github.io/cascade-customizations-catalog/web-ui/index.html) to explore bundles and individual customizations
 2. **Local Browsing**: Browse the `bundles/{team-name}/windsurf/` directories directly
 3. **Selective Copying**: Copy specific rules or workflows that match your development needs
 4. **Learn More**: Refer to the [Windsurf documentation](https://docs.windsurf.com/windsurf/cascade/workflows) for more information

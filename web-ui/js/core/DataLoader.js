@@ -72,7 +72,9 @@ export class DataLoader {
                     activation: 'bundle',
                     filename: 'bundle.yaml',
                     path: bundle.manifestPath,
-                    windsurfPath: bundle.manifestPath,
+                    windsurfPath: this.isGitHubPages
+                        ? this.getRawGitHubUrl(`bundles/${bundle.bundleName}/bundle.yaml`)
+                        : `bundles/${bundle.bundleName}/bundle.yaml`,
                     modified: bundle.metadata?.last_updated || new Date().toISOString(),
                     bundle: bundle,
                     bundleCustomizations: await this.bundleResolver.resolveBundleDependencies(bundle)
