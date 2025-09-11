@@ -1,6 +1,6 @@
 import { MetadataExtractor } from './MetadataExtractor.js?v=final';
 import { DateUtils } from '../utils/DateUtils.js?v=final';
-import { BundleResolver } from './BundleResolver.js?v=manifest';
+import { BundleResolver } from './BundleResolver.js?v=20250911-yamlfix';
 
 /**
  * Handles data loading and processing with environment-aware path resolution
@@ -11,6 +11,9 @@ export class DataLoader {
         this.basePath = this.getBasePath();
         this.fileExtension = this.isGitHubPages ? '.html' : '.md';
         this.bundleResolver = new BundleResolver(this);
+        
+        this.enableBundleVisualization = true;
+        this.enableNewPathResolution = true;
     }
     
     getBasePath() {
@@ -155,13 +158,14 @@ export class DataLoader {
     
     async loadSingleCustomization(link, type, subdir) {
         const baseName = link.filename.replace(/\.md$/i, '');
-        // Display path: .html on GitHub Pages, .md locally
-        const filePath = `${this.basePath}/docs/${type}/${subdir}/${baseName}${this.fileExtension}`;
-        // Source path for download/copy/raw viewer: point to .windsurf sources
-        // Use raw.githubusercontent.com on GH Pages, local path in dev
+        const filePath = this.isGitHubPages
+            ? `${this.basePath}/docs/${type}/${subdir}/${baseName}${this.fileExtension}`
+            : `customizations/${subdir}/${baseName}.md`;
+            
+        // Source path for download/copy/raw viewer: point to customizations sources
         const windsurfPath = this.isGitHubPages
-            ? this.getRawGitHubUrl(`.windsurf/${type}/${subdir}/${baseName}.md`)
-            : `${this.basePath}/.windsurf/${type}/${subdir}/${baseName}.md`;
+            ? this.getRawGitHubUrl(`customizations/${subdir}/${baseName}.md`)
+            : `customizations/${subdir}/${baseName}.md`;
         
         try {
             const response = await fetch(filePath);

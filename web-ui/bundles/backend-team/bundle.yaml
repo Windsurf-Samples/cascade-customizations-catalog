@@ -1,0 +1,34 @@
+name: "Backend Development Team"
+version: "1.0.0"
+description: "Java/Spring backend development standards and deployment workflows"
+maintainers:
+  - "backend-leads@company.com"
+
+dependencies:
+  rules:
+    - path: "language/java.md"
+      version: ">=1.0.0"
+      activation: "glob"
+      globs: "*.java"
+      description: "Java coding standards and best practices"
+    - path: "security/secure-coding.md"
+      version: ">=1.0.0"
+      activation: "always-on"
+      description: "Security practices for backend services"
+      
+  workflows:
+    - path: "workflows/setup/dev-environment-setup.md"
+      version: ">=1.0.0"
+      description: "Development environment configuration for backend services"
+    - path: "workflows/maintenance/debugging-issues.md"
+      version: ">=1.0.0"
+      description: "Systematic debugging approach for backend issues"
+
+compatibility:
+  windsurf: ">=1.0.0"
+  
+metadata:
+  tags: ["backend", "java", "spring", "microservices", "apis"]
+  team_size: "6-10 developers"
+  last_updated: "2024-01-15"
+  use_cases: ["REST APIs", "microservices", "data processing"]

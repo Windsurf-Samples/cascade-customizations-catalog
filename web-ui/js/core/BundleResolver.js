@@ -78,7 +78,15 @@ export class BundleResolver {
                 
                 if (indent === 0) {
                     if (cleanValue) {
-                        result[cleanKey] = cleanValue;
+                        if (cleanValue.startsWith('[') && cleanValue.endsWith(']')) {
+                            try {
+                                result[cleanKey] = JSON.parse(cleanValue);
+                            } catch (e) {
+                                result[cleanKey] = cleanValue.slice(1, -1).split(',').map(l => l.trim().replace(/['"]/g, ''));
+                            }
+                        } else {
+                            result[cleanKey] = cleanValue;
+                        }
                     } else {
                         result[cleanKey] = {};
                         currentSection = result[cleanKey];
@@ -87,13 +95,21 @@ export class BundleResolver {
                     }
                 } else if (indent === 2 && currentSection) {
                     if (cleanValue) {
-                        currentSection[cleanKey] = cleanValue;
+                        if (cleanValue.startsWith('[') && cleanValue.endsWith(']')) {
+                            try {
+                                currentSection[cleanKey] = JSON.parse(cleanValue);
+                            } catch (e) {
+                                currentSection[cleanKey] = cleanValue.slice(1, -1).split(',').map(l => l.trim().replace(/['"]/g, ''));
+                            }
+                        } else {
+                            currentSection[cleanKey] = cleanValue;
+                        }
                     } else {
                         currentSection[cleanKey] = [];
                         currentArray = currentSection[cleanKey];
                         currentItem = null;
                     }
-                } else if (indent >= 6 && currentItem) {
+                }else if (indent >= 6 && currentItem) {
                     currentItem[cleanKey] = cleanValue;
                 }
             } else if (trimmed.startsWith('-') && currentArray !== null) {
@@ -181,11 +197,11 @@ export class BundleResolver {
         const baseName = filename.replace(/\.md$/i, '');
         const displayPath = this.dataLoader.isGitHubPages
             ? `${this.dataLoader.basePath}/docs/${type}/${category}/${baseName}${this.dataLoader.fileExtension}`
-            : `/cascade-customizations-catalog/docs/${type}/${category}/${baseName}.html`;
+            : `customizations/${category}/${baseName}.md`;
             
         const windsurfPath = this.dataLoader.isGitHubPages
             ? this.dataLoader.getRawGitHubUrl(`customizations/${category}/${filename}`)
-            : `${this.dataLoader.basePath}/customizations/${category}/${filename}`;
+            : `customizations/${category}/${filename}`;
         
         console.log(`Attempting to fetch: ${displayPath}`);
         try {
@@ -278,7 +294,15 @@ export class BundleResolver {
         if (!metadata.labels) {
             metadata.labels = [];
         } else if (typeof metadata.labels === 'string') {
-            metadata.labels = metadata.labels.split(',').map(l => l.trim());
+            if (metadata.labels.startsWith('[') && metadata.labels.endsWith(']')) {
+                try {
+                    metadata.labels = JSON.parse(metadata.labels);
+                } catch (e) {
+                    metadata.labels = metadata.labels.slice(1, -1).split(',').map(l => l.trim().replace(/['"]/g, ''));
+                }
+            } else {
+                metadata.labels = metadata.labels.split(',').map(l => l.trim());
+            }
         } else if (!Array.isArray(metadata.labels)) {
             metadata.labels = [];
         }
