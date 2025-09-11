@@ -120,6 +120,8 @@ export class BundleResolver {
     async resolveBundleDependencies(bundle) {
         const resolvedCustomizations = [];
         
+        this.currentBundleName = bundle.bundleName;
+        
         console.log('Resolving bundle dependencies for:', bundle.name, bundle.dependencies);
         
         if (bundle.dependencies && bundle.dependencies.rules && Array.isArray(bundle.dependencies.rules)) {
@@ -144,6 +146,8 @@ export class BundleResolver {
             }
         }
         
+        this.currentBundleName = null;
+        
         console.log('Resolved', resolvedCustomizations.length, 'customizations for bundle:', bundle.name);
         return resolvedCustomizations;
     }
@@ -155,6 +159,10 @@ export class BundleResolver {
         if (!dependency || !dependency.path) {
             console.warn('Invalid dependency:', dependency);
             return null;
+        }
+        
+        if (dependency.path.startsWith('windsurf/')) {
+            return this.resolveBundleInternalCustomization(dependency, type);
         }
         
         const pathParts = dependency.path.split('/');
@@ -298,5 +306,128 @@ export class BundleResolver {
         }
         
         return metadata;
+    }
+    
+    /**
+     * Extract metadata from YAML frontmatter
+     */
+    extractMetadataFromYAML(content) {
+        const metadata = {};
+        
+        const yamlMatch = content.match(/^---\s*\n([\s\S]*?)\n---/);
+        if (yamlMatch) {
+            const yamlContent = yamlMatch[1];
+            const lines = yamlContent.split('\n');
+            
+            for (const line of lines) {
+                const colonIndex = line.indexOf(':');
+                if (colonIndex > 0) {
+                    const key = line.substring(0, colonIndex).trim();
+                    let value = line.substring(colonIndex + 1).trim();
+                    
+                    if (value.startsWith('"') && value.endsWith('"')) {
+                        value = value.slice(1, -1);
+                    }
+                    
+                    if (key === 'labels') {
+                        if (value.startsWith('[') && value.endsWith(']')) {
+                            value = value.slice(1, -1).split(',').map(l => l.trim().replace(/"/g, ''));
+                        } else if (typeof value === 'string') {
+                            value = [value];
+                        }
+                    }
+                    
+                    metadata[key] = value;
+                }
+            }
+        }
+        
+        return metadata;
+    }
+    
+    /**
+     * Resolve customization from bundle-internal windsurf directory
+     */
+    async resolveBundleInternalCustomization(dependency, type) {
+        const pathParts = dependency.path.split('/');
+        if (pathParts.length < 3 || pathParts[0] !== 'windsurf') {
+            console.warn('Invalid bundle-internal path format:', dependency.path);
+            return null;
+        }
+        
+        const subType = pathParts[1]; // 'rules' or 'workflows'
+        const filename = pathParts[2];
+        const baseName = filename.replace(/\.md$/i, '');
+        
+        const bundleName = this.findBundleForDependency(dependency);
+        if (!bundleName) {
+            console.warn('Could not determine bundle for dependency:', dependency.path);
+            return null;
+        }
+        
+        const displayPath = this.dataLoader.isGitHubPages
+            ? `${this.dataLoader.basePath}/bundles/${bundleName}/windsurf/${subType}/${baseName}${this.dataLoader.fileExtension}`
+            : `${this.dataLoader.basePath}/bundles/${bundleName}/windsurf/${subType}/${baseName}.md`;
+            
+        const windsurfPath = this.dataLoader.isGitHubPages
+            ? this.dataLoader.getRawGitHubUrl(`bundles/${bundleName}/windsurf/${subType}/${filename}`)
+            : `${this.dataLoader.basePath}/bundles/${bundleName}/windsurf/${subType}/${filename}`;
+        
+        try {
+            const response = await fetch(displayPath);
+            if (!response.ok) {
+                console.warn(`Failed to fetch ${displayPath}: ${response.status}`);
+                return null;
+            }
+            
+            const content = await response.text();
+            
+            let metadata = {};
+            if (this.dataLoader.isGitHubPages) {
+                metadata = this.extractMetadataFromHTML(content);
+            } else {
+                metadata = this.extractMetadataFromYAML(content);
+            }
+            
+            return {
+                id: `${bundleName}-${subType}-${baseName}`,
+                title: dependency.description || this.generateTitle(filename),
+                description: this.extractDescription(content),
+                type: subType,
+                category: this.formatBundleCategory(bundleName),
+                labels: metadata.labels || [],
+                author: metadata.author || 'Team',
+                activation: dependency.activation || metadata.activation || 'manual',
+                filename: filename,
+                path: displayPath,
+                windsurfPath: windsurfPath,
+                modified: metadata.modified || new Date().toISOString(),
+                bundleReference: true,
+                bundleDependency: dependency
+            };
+        } catch (error) {
+            console.warn(`Failed to resolve bundle-internal customization ${dependency.path}:`, error);
+            return null;
+        }
+    }
+    
+    /**
+     * Find which bundle a dependency belongs to by checking current resolution context
+     */
+    findBundleForDependency(dependency) {
+        return this.currentBundleName || null;
+    }
+    
+    /**
+     * Format bundle name as category
+     */
+    formatBundleCategory(bundleName) {
+        const map = {
+            'frontend-team': 'Frontend Team',
+            'backend-team': 'Backend Team',
+            'security-team': 'Security Team',
+            'devops-team': 'DevOps Team'
+        };
+        return map[bundleName] || bundleName.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
     }
 }
