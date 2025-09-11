@@ -1,276 +1,244 @@
 ---
-labels: debugging, troubleshooting, problem-solving, maintenance, logging, profiling, systematic-approach, intermediate
-author: Cascade Community
-modified: 2025-08-01
+description: Systematic debugging workflow for identifying and resolving software issues
 ---
 
-# Debugging Issues Workflow
+This workflow provides a structured approach to debugging issues, from initial problem identification to resolution and prevention.
 
-## Description
+## Phase 1: Problem Definition
 
-A systematic, phase-based approach to debugging software issues that guides developers from initial problem identification through resolution and prevention. This workflow emphasizes structured thinking, comprehensive information gathering, and methodical testing to efficiently resolve complex technical problems.
-
-## Usage
-
-Use this workflow when:
-- Investigating production issues or bugs
-- Troubleshooting performance problems
-- Diagnosing system failures or unexpected behavior
-- Training team members on debugging methodology
-- Conducting post-incident investigations
-- Resolving integration or deployment issues
-
-This workflow is valuable for:
-- **Senior developers** mentoring junior team members
-- **DevOps engineers** investigating system issues
-- **Support teams** escalating issues to development
-- **QA engineers** providing detailed bug reports
-
-## Examples
-
-### Production Issue Investigation
-
-#### API Response Time Degradation
+1. **Reproduce the issue consistently**
 ```bash
-# Phase 1: Reproduce and define
-curl -w "@curl-format.txt" -s -o /dev/null https://api.example.com/users
-
-# Phase 2: Gather information
-# Check application logs
-kubectl logs -f deployment/api-server | grep "slow query"
-
-# Check database performance
-SELECT query, mean_time, calls 
-FROM pg_stat_statements 
-ORDER BY mean_time DESC LIMIT 10;
-
-# Phase 3: Form hypothesis
-# Hypothesis: Recent database migration caused query performance regression
-
-# Phase 4: Test hypothesis
-EXPLAIN ANALYZE SELECT * FROM users 
-JOIN profiles ON users.id = profiles.user_id 
-WHERE users.created_at > '2024-01-01';
+# Document exact steps to reproduce
+# Note: environment, browser, OS, versions
+# Record any error messages or unexpected behavior
 ```
 
-#### Memory Leak Investigation
+2. **Gather initial information**
+- What was the expected behavior?
+- What actually happened?
+- When did this start occurring?
+- Has this worked before?
+- What changed recently?
+
+3. **Check obvious causes first**
 ```bash
-# Monitor memory usage over time
-while true; do
-  ps aux | grep node | grep -v grep
-  sleep 60
-done
+# Verify service status
+curl -I https://your-api.com/health
 
-# Use Node.js heap profiling
-node --inspect app.js
-# Connect Chrome DevTools and take heap snapshots
+# Check recent deployments
+git log --oneline -10
 
-# Identify memory growth patterns
-node --trace-gc app.js 2>&1 | grep "Scavenge\|Mark-Sweep"
+# Review recent configuration changes
+git diff HEAD~5 -- config/
 ```
 
-### Frontend Debugging Scenarios
+## Phase 2: Information Gathering
 
-#### React Component Not Updating
-```javascript
-// Add debugging to component
-function UserProfile({ userId }) {
-  console.log('UserProfile render', { userId, timestamp: Date.now() });
-  
-  const [user, setUser] = useState(null);
-  
-  useEffect(() => {
-    console.log('UserProfile useEffect triggered', { userId });
-    fetchUser(userId).then(userData => {
-      console.log('User data received', userData);
-      setUser(userData);
-    });
-  }, [userId]); // Check dependency array
+4. **Collect relevant logs**
+```bash
+# Application logs
+tail -f logs/application.log | grep ERROR
 
-  return user ? <div>{user.name}</div> : <div>Loading...</div>;
-}
+# System logs (Linux)
+sudo journalctl -f -u your-service
+
+# Database logs
+tail -f /var/log/postgresql/postgresql.log
+
+# Web server logs
+tail -f /var/log/nginx/error.log
 ```
 
-#### Network Request Failures
+5. **Check system resources**
+```bash
+# CPU and memory usage
+top
+htop
+
+# Disk space
+df -h
+
+# Network connectivity
+ping external-service.com
+netstat -tulpn | grep :3000
+```
+
+6. **Review monitoring dashboards**
+- Application performance metrics
+- Error rates and response times
+- Database query performance
+- Infrastructure health
+
+## Phase 3: Hypothesis Formation
+
+7. **Analyze the data collected**
+- Look for patterns in logs
+- Correlate timing with deployments/changes
+- Identify common factors across failures
+
+8. **Form testable hypotheses**
+- Start with the most likely causes
+- Consider recent changes first
+- Think about external dependencies
+
+## Phase 4: Systematic Testing
+
+9. **Test hypotheses one by one**
+```bash
+# Test in isolation
+# Create minimal reproduction case
+# Use debugging tools specific to your stack
+
+# Node.js debugging
+node --inspect-brk app.js
+# Then connect Chrome DevTools
+
+# Python debugging
+python -m pdb script.py
+
+# Database query analysis
+EXPLAIN ANALYZE SELECT * FROM users WHERE email = 'test@example.com';
+```
+
+10. **Use debugging tools effectively**
+```bash
+# Network debugging
+curl -v https://api.example.com/endpoint
+tcpdump -i any port 80
+
+# Process debugging
+strace -p <process_id>
+lsof -p <process_id>
+
+# Memory debugging
+valgrind --tool=memcheck ./your-program
+```
+
+## Phase 5: Binary Search Approach
+
+11. **Isolate the problem area**
+```bash
+# Git bisect for regression issues
+git bisect start
+git bisect bad HEAD
+git bisect good v1.2.0
+# Git will guide you through the process
+
+# Comment out code sections
+# Add debug statements
+# Use feature flags to isolate components
+```
+
+12. **Narrow down to specific components**
+- Test individual functions/modules
+- Mock external dependencies
+- Use unit tests to isolate behavior
+
+## Phase 6: Deep Dive Investigation
+
+13. **Add comprehensive logging**
 ```javascript
-// Enhanced error handling and logging
-async function apiCall(endpoint, options = {}) {
-  const requestId = Math.random().toString(36).substr(2, 9);
-  console.log('API Request Start', { requestId, endpoint, options });
-  
+// Add structured logging
+console.log('DEBUG: Processing user', { 
+  userId, 
+  timestamp: new Date().toISOString(),
+  requestId: req.id 
+});
+
+// Log function entry/exit
+function processPayment(amount, userId) {
+  console.log('ENTER processPayment', { amount, userId });
   try {
-    const response = await fetch(endpoint, {
-      ...options,
-      headers: {
-        'X-Request-ID': requestId,
-        ...options.headers
-      }
-    });
-    
-    console.log('API Response', { 
-      requestId, 
-      status: response.status, 
-      headers: Object.fromEntries(response.headers.entries()) 
-    });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-    
-    const data = await response.json();
-    console.log('API Success', { requestId, dataKeys: Object.keys(data) });
-    return data;
+    // ... function logic
+    console.log('EXIT processPayment SUCCESS');
+    return result;
   } catch (error) {
-    console.error('API Error', { requestId, error: error.message, stack: error.stack });
+    console.log('EXIT processPayment ERROR', { error: error.message });
     throw error;
   }
 }
 ```
 
-### Database Debugging Techniques
-
-#### Query Performance Analysis
-```sql
--- Enable query logging
-SET log_statement = 'all';
-SET log_min_duration_statement = 1000; -- Log queries > 1 second
-
--- Analyze slow queries
-SELECT query, mean_time, calls, total_time
-FROM pg_stat_statements 
-WHERE mean_time > 100
-ORDER BY mean_time DESC;
-
--- Check index usage
-SELECT schemaname, tablename, attname, n_distinct, correlation
-FROM pg_stats 
-WHERE tablename = 'users';
-```
-
-#### Connection Pool Issues
-```javascript
-// Monitor connection pool
-const pool = new Pool({
-  host: 'localhost',
-  database: 'myapp',
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-});
-
-// Add pool monitoring
-pool.on('connect', (client) => {
-  console.log('Pool connected', { 
-    totalCount: pool.totalCount, 
-    idleCount: pool.idleCount,
-    waitingCount: pool.waitingCount 
-  });
-});
-
-pool.on('error', (err, client) => {
-  console.error('Pool error', { error: err.message, client: client?.processID });
-});
-```
-
-### System-Level Debugging
-
-#### Docker Container Issues
+14. **Use profiling tools**
 ```bash
-# Check container health
-docker ps -a
-docker logs container_name --tail 100 -f
+# Node.js profiling
+node --prof app.js
+node --prof-process isolate-*.log > processed.txt
 
-# Inspect container resources
-docker stats container_name
-
-# Debug inside container
-docker exec -it container_name /bin/bash
-# Check processes, memory, disk space
-ps aux
-df -h
-free -m
+# Python profiling
+python -m cProfile -o profile.stats script.py
 ```
 
-#### Load Balancer Configuration
+## Phase 7: Solution Implementation
+
+15. **Implement the fix**
 ```bash
-# Test load balancer routing
-for i in {1..10}; do
-  curl -H "Host: myapp.com" http://load-balancer/health
-  sleep 1
-done
+# Create a branch for the fix
+git checkout -b fix/issue-description
 
-# Check backend server health
-curl -v http://backend-1:3000/health
-curl -v http://backend-2:3000/health
+# Make minimal changes to fix the issue
+# Add tests to prevent regression
+# Update documentation if needed
 ```
 
-### Debugging Workflow Templates
+16. **Test the solution thoroughly**
+```bash
+# Run existing tests
+npm test
 
-#### Bug Report Template
-```markdown
-## Bug Report: [Issue Title]
-**Reporter**: [Name]
-**Date**: [YYYY-MM-DD]
-**Environment**: [Production/Staging/Development]
-**Severity**: [Critical/High/Medium/Low]
+# Test the specific issue scenario
+# Test edge cases
+# Test in staging environment
 
-### Steps to Reproduce
-1. Navigate to...
-2. Click on...
-3. Enter data...
-4. Observe...
-
-### Expected Behavior
-[What should happen]
-
-### Actual Behavior
-[What actually happens]
-
-### Additional Context
-- Browser: [Chrome 91.0]
-- OS: [macOS 11.4]
-- User Role: [Admin/User]
-- Error Messages: [Copy exact text]
-- Screenshots: [Attach if relevant]
-
-### Investigation Notes
-[To be filled during debugging]
+# Performance testing if relevant
+ab -n 1000 -c 10 http://localhost:3000/api/endpoint
 ```
 
-#### Post-Mortem Template
-```markdown
-## Post-Mortem: [Incident Title]
-**Date**: [YYYY-MM-DD]
-**Duration**: [Start time - End time]
-**Impact**: [Users affected, services down]
+## Phase 8: Documentation and Prevention
 
-### Timeline
-- **HH:MM** - Issue first detected
-- **HH:MM** - Investigation started
-- **HH:MM** - Root cause identified
-- **HH:MM** - Fix deployed
-- **HH:MM** - Service fully restored
+17. **Document the issue and solution**
+```markdown
+## Issue: [Brief Description]
+**Date**: 2024-01-15
+**Severity**: High
+**Affected**: User authentication system
 
 ### Root Cause
-[Detailed explanation of what caused the issue]
+Database connection pool exhaustion due to unclosed connections
 
-### Resolution
-[What was done to fix the issue]
+### Solution
+- Added proper connection cleanup in error handlers
+- Implemented connection pool monitoring
+- Added alerts for connection pool usage > 80%
 
-### Lessons Learned
-[What we learned from this incident]
-
-### Action Items
-- [ ] Implement monitoring for X
-- [ ] Update deployment process
-- [ ] Add automated tests for Y
+### Prevention
+- Added unit tests for connection cleanup
+- Updated code review checklist
+- Implemented automated connection leak detection
 ```
 
-This systematic approach ensures thorough investigation and helps build institutional knowledge for future debugging efforts.
+18. **Implement preventive measures**
+```bash
+# Add monitoring/alerts
+# Create automated tests
+# Update deployment procedures
+# Share learnings with team
 
-<!-- METADATA
-labels: debugging, troubleshooting, problem-solving, maintenance, logging, profiling, systematic-approach, intermediate
-author: Cascade Community
-activation: manual
-category: Workflows
--->
+# Add to CI/CD pipeline
+echo "npm run test:connections" >> .github/workflows/ci.yml
+```
+
+## Phase 9: Post-Resolution
+
+19. **Monitor for recurrence**
+- Set up alerts for similar patterns
+- Track related metrics
+- Schedule follow-up reviews
+
+20. **Share knowledge**
+- Update team documentation
+- Conduct post-mortem if significant
+- Add to debugging playbook
+- Update monitoring dashboards
+
+Remember: The goal is not just to fix the immediate issue, but to understand why it happened and prevent similar issues in the future.

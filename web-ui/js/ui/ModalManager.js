@@ -86,13 +86,26 @@ export class ModalManager {
         // Update type badge
         const typeBadge = document.getElementById('modalType');
         if (typeBadge) {
-            const typeIcon = customization.type === 'rules' ? 'fas fa-cogs' : 'fas fa-list-ol';
-            const badgeClass = customization.type === 'rules' ? 'type-badge--rules' : 'type-badge--workflows';
+            let typeIcon, badgeClass, typeLabel;
+            
+            if (customization.type === 'rules') {
+                typeIcon = 'fas fa-cogs';
+                badgeClass = 'type-badge--rules';
+                typeLabel = 'Rule';
+            } else if (customization.type === 'workflows') {
+                typeIcon = 'fas fa-list-ol';
+                badgeClass = 'type-badge--workflows';
+                typeLabel = 'Workflow';
+            } else if (customization.type === 'bundle') {
+                typeIcon = 'fas fa-box';
+                badgeClass = 'type-badge--bundles';
+                typeLabel = 'Bundle';
+            }
             
             typeBadge.className = `type-badge ${badgeClass}`;
             typeBadge.innerHTML = `
                 <i class="${typeIcon}"></i>
-                ${customization.type.charAt(0).toUpperCase() + customization.type.slice(1, -1)}
+                ${typeLabel}
             `;
         }
         

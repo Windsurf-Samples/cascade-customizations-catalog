@@ -47,15 +47,29 @@ export class ViewRenderer {
     }
     
     renderCustomizationCard(customization) {
-        const typeIcon = customization.type === 'rules' ? 'fas fa-cogs' : 'fas fa-list-ol';
+        let typeIcon, typeBadgeClass, typeLabel;
+        
+        if (customization.type === 'rules') {
+            typeIcon = 'fas fa-cogs';
+            typeBadgeClass = 'type-badge--rules';
+            typeLabel = 'Rule';
+        } else if (customization.type === 'workflows') {
+            typeIcon = 'fas fa-list-ol';
+            typeBadgeClass = 'type-badge--workflows';
+            typeLabel = 'Workflow';
+        } else if (customization.type === 'bundle') {
+            typeIcon = 'fas fa-box';
+            typeBadgeClass = 'type-badge--bundles';
+            typeLabel = 'Bundle';
+        }
         
         return `
             <div class="bg-white rounded-lg shadow-md card-hover cursor-pointer" data-customization-id="${customization.id}">
                 <div class="p-6">
                     <div class="flex items-center justify-between mb-3">
-                        <span class="type-badge ${customization.type === 'rules' ? 'type-badge--rules' : 'type-badge--workflows'}">
+                        <span class="type-badge ${typeBadgeClass}">
                             <i class="${typeIcon}"></i>
-                            ${customization.type.charAt(0).toUpperCase() + customization.type.slice(1, -1)}
+                            ${typeLabel}
                         </span>
                         <span class="text-sm text-gray-500">${customization.category}</span>
                     </div>
@@ -65,10 +79,10 @@ export class ViewRenderer {
                     
                     <div class="mb-3">
                         <div class="flex flex-wrap gap-1.5">
-                            ${customization.labels.slice(0, 3).map(label => 
+                            ${Array.isArray(customization.labels) ? customization.labels.slice(0, 3).map(label => 
                                 `<span class="tag ${ColorUtils.getLabelColorClass(label)}">${label}</span>`
-                            ).join('')}
-                            ${customization.labels.length > 3 ? `<span class="tag bg-gray-200 text-gray-600 border-gray-300">+${customization.labels.length - 3} more</span>` : ''}
+                            ).join('') : ''}
+                            ${Array.isArray(customization.labels) && customization.labels.length > 3 ? `<span class="tag bg-gray-200 text-gray-600 border-gray-300">+${customization.labels.length - 3} more</span>` : ''}
                         </div>
                     </div>
                     
@@ -82,7 +96,21 @@ export class ViewRenderer {
     }
     
     renderCustomizationListItem(customization) {
-        const typeIcon = customization.type === 'rules' ? 'fas fa-cogs' : 'fas fa-list-ol';
+        let typeIcon, typeBadgeClass, typeLabel;
+        
+        if (customization.type === 'rules') {
+            typeIcon = 'fas fa-cogs';
+            typeBadgeClass = 'type-badge--rules';
+            typeLabel = 'Rule';
+        } else if (customization.type === 'workflows') {
+            typeIcon = 'fas fa-list-ol';
+            typeBadgeClass = 'type-badge--workflows';
+            typeLabel = 'Workflow';
+        } else if (customization.type === 'bundle') {
+            typeIcon = 'fas fa-box';
+            typeBadgeClass = 'type-badge--bundles';
+            typeLabel = 'Bundle';
+        }
         
         return `
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 card-hover cursor-pointer" data-customization-id="${customization.id}">
@@ -90,9 +118,9 @@ export class ViewRenderer {
                     <div class="flex items-start justify-between">
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-3 mb-2">
-                                <span class="type-badge ${customization.type === 'rules' ? 'type-badge--rules' : 'type-badge--workflows'}">
+                                <span class="type-badge ${typeBadgeClass}">
                                     <i class="${typeIcon}"></i>
-                                    ${customization.type.charAt(0).toUpperCase() + customization.type.slice(1, -1)}
+                                    ${typeLabel}
                                 </span>
                                 <h3 class="text-lg font-semibold text-gray-900 truncate">${customization.title}</h3>
                             </div>
@@ -100,10 +128,10 @@ export class ViewRenderer {
                             <p class="text-gray-600 text-sm mb-3 line-clamp-2">${customization.description}</p>
                             
                             <div class="flex flex-wrap gap-1.5 mb-2">
-                                ${customization.labels.slice(0, 5).map(label => 
+                                ${Array.isArray(customization.labels) ? customization.labels.slice(0, 5).map(label => 
                                     `<span class="tag ${ColorUtils.getLabelColorClass(label)}">${label}</span>`
-                                ).join('')}
-                                ${customization.labels.length > 5 ? `<span class="tag bg-gray-200 text-gray-600 border-gray-300">+${customization.labels.length - 5} more</span>` : ''}
+                                ).join('') : ''}
+                                ${Array.isArray(customization.labels) && customization.labels.length > 5 ? `<span class="tag bg-gray-200 text-gray-600 border-gray-300">+${customization.labels.length - 5} more</span>` : ''}
                             </div>
                         </div>
                         

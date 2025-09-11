@@ -1,0 +1,35 @@
+name: "Frontend Development Team"
+version: "1.0.0"
+description: "React/TypeScript development standards and workflows for frontend teams"
+maintainers:
+  - "frontend-leads@company.com"
+
+dependencies:
+  rules:
+    - path: "language/typescript.md"
+      version: ">=1.0.0"
+      activation: "glob"
+      globs: "*.ts,*.tsx"
+      description: "TypeScript best practices for type safety and code quality"
+    - path: "framework/react.md"
+      version: ">=1.0.0" 
+      activation: "model-decision"
+      description: "React component patterns and best practices"
+    - path: "security/secure-coding.md"
+      version: ">=1.0.0"
+      activation: "always-on"
+      description: "Security practices for frontend applications"
+      
+  workflows:
+    - path: "workflows/setup/node-project-setup.md"
+      version: ">=1.0.0"
+      description: "Node.js project initialization and configuration"
+
+compatibility:
+  windsurf: ">=1.0.0"
+  
+metadata:
+  tags: ["frontend", "react", "typescript", "javascript"]
+  team_size: "8-12 developers"
+  last_updated: "2024-01-15"
+  use_cases: ["web applications", "component libraries", "single-page applications"]
