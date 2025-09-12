@@ -16,6 +16,18 @@ export class DataLoader {
         
         this.enableBundleVisualization = true;
         this.enableNewPathResolution = true;
+        
+        this.ruleToBundleMapping = {
+            'react.md': 'frontend-team',
+            'typescript.md': 'frontend-team',
+            'java.md': 'backend-team',
+            'secure-coding.md': 'security-team',
+            'code-review-checklist.md': 'frontend-team',
+            'coding-best-practices.md': 'frontend-team',
+            'debugging-issues.md': 'devops-team',
+            'dev-environment-setup.md': 'devops-team',
+            'node-project-setup.md': 'frontend-team'
+        };
     }
     
     getBasePath() {
@@ -121,9 +133,14 @@ export class DataLoader {
         
         const filePath = fileInfo.displayPath || `${this.basePath}/docs/${type}/${subdir}/${baseName}${this.fileExtension}`;
         
-        const windsurfPath = this.isGitHubPages
-            ? this.getRawGitHubUrl(`.windsurf/${type}/${subdir ? subdir + '/' : ''}${baseName}.md`)
-            : `${this.basePath}/.windsurf/${type}/${subdir ? subdir + '/' : ''}${baseName}.md`;
+        const bundleName = this.ruleToBundleMapping[fileInfo.filename];
+        const windsurfPath = bundleName 
+            ? (this.isGitHubPages
+                ? this.getRawGitHubUrl(`bundles/${bundleName}/windsurf/${type}/${baseName}.md`)
+                : `bundles/${bundleName}/windsurf/${type}/${baseName}.md`)
+            : (this.isGitHubPages
+                ? this.getRawGitHubUrl(`.windsurf/${type}/${subdir ? subdir + '/' : ''}${baseName}.md`)
+                : `${this.basePath}/.windsurf/${type}/${subdir ? subdir + '/' : ''}${baseName}.md`);
         
         try {
             const response = await fetch(filePath);
