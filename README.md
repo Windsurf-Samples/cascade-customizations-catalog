@@ -32,159 +32,186 @@ Workflows are explicitly defined step-by-step procedures that help Cascade work 
 
 Workflows can be used for one time tasks like project setup or repeated tasks like testing procedures, deployment processes, debugging methodology, and more.
 
-## Current Structure Issues
+## Team-Focused Bundle Structure
 
-The current repository structure has several critical problems for enterprise cataloging and team distribution:
+The catalog is organized into team-focused bundles that group related customizations together for easy distribution and use. Each bundle contains a complete set of rules and workflows tailored for specific development teams.
 
-### 1. **Dual Directory Maintenance Overhead**
-The repository maintains two parallel directory systems:
-- `.windsurf/` - Contains actual rule and workflow files that users copy
-- `docs/` - Contains documentation versions with different metadata formats
+### Available Team Bundles
 
-This creates significant maintenance burden as every change requires updating both locations with different formatting and metadata structures.
+#### 🎨 Frontend Team Bundle
+**Location**: `bundles/frontend-team/`
+- **Focus**: React/TypeScript development standards and workflows
+- **Team Size**: 8-12 developers
+- **Rules**: TypeScript best practices, React patterns, security practices, code review checklist
+- **Workflows**: Node.js project setup
+- **Use Cases**: Web applications, component libraries, single-page applications
 
-### 2. **Hardcoded File Management**
-The web UI uses hardcoded file paths in `web-ui/js/core/DataLoader.js`, requiring manual updates to a predefined file list every time new customizations are added. This makes scaling and maintenance difficult.
+#### ⚙️ Backend Team Bundle
+**Location**: `bundles/backend-team/`
+- **Focus**: Java/Spring backend development and deployment
+- **Team Size**: 6-10 developers
+- **Rules**: Java coding standards, security practices, code review checklist
+- **Workflows**: Development environment setup, debugging procedures
+- **Use Cases**: REST APIs, microservices, data processing
 
-### 3. **Category-Based Organization Scatters Team Resources**
-The current structure organizes files by technical category (language, framework, security) rather than by team or use case. This forces teams to hunt across multiple directories to find all relevant customizations for their workflow.
+#### 🔒 Security Team Bundle
+**Location**: `bundles/security-team/`
+- **Focus**: Security-focused rules and compliance workflows
+- **Team Size**: 3-5 security engineers
+- **Rules**: Core secure coding practices for all languages
+- **Workflows**: None (focuses on always-on security rules)
+- **Use Cases**: Security reviews, compliance audits, vulnerability assessment
 
-### 4. **Poor Bundle Distribution**
-Teams cannot easily copy a coherent set of related customizations. Instead, they must manually identify and copy individual files scattered across the category-based structure.
+#### 🚀 DevOps Team Bundle
+**Location**: `bundles/devops-team/`
+- **Focus**: Infrastructure, deployment, and maintenance workflows
+- **Team Size**: 4-8 engineers
+- **Rules**: None (focuses on operational workflows)
+- **Workflows**: Development environment setup, infrastructure debugging
+- **Use Cases**: CI/CD, infrastructure management, monitoring, deployment
 
-## Proposed Optimal Structure
+### Bundle Structure
 
-### Option 1: Team-Focused Bundles (Recommended)
-
-```
-bundles/
-├── frontend-team/
-│   ├── .windsurf/
-│   │   ├── rules/
-│   │   │   ├── react-best-practices.md
-│   │   │   ├── typescript-standards.md
-│   │   │   └── code-review-checklist.md
-│   │   └── workflows/
-│   │       ├── component-setup.md
-│   │       └── testing-workflow.md
-│   ├── bundle.yaml              # Team info, dependencies, usage notes
-│   └── README.md               # Team-specific documentation
-├── backend-team/
-│   ├── .windsurf/
-│   │   ├── rules/
-│   │   │   ├── java-guidelines.md
-│   │   │   ├── api-design.md
-│   │   │   └── security-practices.md
-│   │   └── workflows/
-│   │       ├── service-setup.md
-│   │       └── deployment.md
-│   ├── bundle.yaml
-│   └── README.md
-├── security-team/
-│   ├── .windsurf/
-│   │   └── rules/
-│   │       ├── secure-coding.md
-│   │       ├── vulnerability-checks.md
-│   │       └── compliance-review.md
-│   ├── bundle.yaml
-│   └── README.md
-└── devops-team/
-    ├── .windsurf/
-    │   ├── rules/
-    │   │   └── infrastructure-as-code.md
-    │   └── workflows/
-    │       ├── ci-cd-setup.md
-    │       └── monitoring-setup.md
-    ├── bundle.yaml
-    └── README.md
-```
-
-**Benefits:**
-- Teams can copy entire `bundles/frontend-team/.windsurf/` directory to their workspace
-- Related customizations are co-located and maintained together
-- Bundle manifests provide metadata without dual directory overhead
-- Clear navigation path for different team types
-- Scales naturally as organizations add new team types
-
-### Option 2: Category-Based with Embedded .windsurf
+Each team bundle follows a consistent structure:
 
 ```
-categories/
-├── frontend/
-│   ├── react/
-│   │   └── .windsurf/
-│   │       └── rules/
-│   │           ├── component-patterns.md
-│   │           └── hooks-best-practices.md
-│   ├── typescript/
-│   │   └── .windsurf/
-│   │       └── rules/
-│   │           ├── type-safety.md
-│   │           └── strict-config.md
-│   └── testing/
-│       └── .windsurf/
-│           └── workflows/
-│               └── frontend-testing.md
-├── backend/
-│   ├── java/
-│   │   └── .windsurf/
-│   │       └── rules/
-│   │           ├── coding-standards.md
-│   │           └── spring-patterns.md
-│   └── apis/
-│       └── .windsurf/
-│           └── rules/
-│               └── rest-design.md
-└── security/
-    └── .windsurf/
-        └── rules/
-            ├── secure-coding.md
-            └── vulnerability-scanning.md
+bundles/{team-name}/
+├── bundle.yaml          # Bundle manifest with dependencies and metadata
+└── windsurf/           # Windsurf customizations directory
+    ├── rules/          # Rule files (.md)
+    └── workflows/      # Workflow files (.md)
 ```
 
-**Benefits:**
-- Maintains technical categorization for browsing
-- Each category has its own `.windsurf` directory for easy copying
-- Eliminates dual directory system
-- Allows teams to copy specific technology stacks
+### Bundle Manifest System
+
+Each bundle includes a `bundle.yaml` manifest file that defines:
+
+- **Dependencies**: Lists of rules and workflows with their activation modes
+- **Activation Modes**: How rules are triggered (always-on, model-decision, glob-based, manual)
+- **Metadata**: Team information, tags, use cases, and compatibility requirements
+- **Versioning**: Bundle and dependency version tracking
+
+Example manifest structure:
+```yaml
+name: "Frontend Development Team"
+version: "1.0.0"
+description: "React/TypeScript development standards and workflows"
+
+dependencies:
+  rules:
+    - path: "windsurf/rules/typescript.md"
+      activation: "glob"
+      globs: "*.ts,*.tsx"
+      description: "TypeScript best practices"
+  workflows:
+    - path: "windsurf/workflows/node-project-setup.md"
+      description: "Node.js project initialization"
+
+metadata:
+  tags: ["frontend", "react", "typescript"]
+  team_size: "8-12 developers"
+  use_cases: ["web applications", "component libraries"]
+```
 
 ## Browse the Catalog
 
 ### 🌐 Web Interface
-**[Browse the Catalog Online](https://windsurf-samples.github.io/cascade-customizations-catalog/web-ui/index.html)**
+**[Browse the Catalog Online](https://cognitionteam20scavenger.github.io/cascade-customizations-catalog/web-ui/index.html)**
 
-Use our interactive web interface to browse and discover customizations for your enterprise catalog. The web catalog provides:
+Use our interactive web interface to explore team-focused bundles and individual customizations. The web catalog provides:
 
-- **Search and Filter**: Find customizations by name, category, or keywords
+- **Bundle Navigation**: Browse complete team bundles with all their rules and workflows
+- **Search and Filter**: Find customizations by team, technology, or keywords
 - **Live Preview**: View rule and workflow content directly in the browser
-- **Easy Copy**: One-click copying of customization files
-- **Category Navigation**: Browse by framework, language, or use case
-- **Bundle Organization**: See how customizations can be grouped for team distribution
+- **Bundle Download**: Download entire team bundles or individual customizations
+- **Manifest Viewer**: Inspect bundle dependencies, activation modes, and metadata
+- **Team Organization**: See how customizations are organized by development team focus
 
 ## Getting Started
 
+### Using Team Bundles
+
+#### 1. Choose Your Team Bundle
+Browse the available team bundles and select the one that matches your development focus:
+- **Frontend Team**: React/TypeScript development
+- **Backend Team**: Java/Spring backend services  
+- **Security Team**: Security-focused practices
+- **DevOps Team**: Infrastructure and deployment
+
+#### 2. Copy Bundle to Your Workspace
+Navigate to your chosen bundle and copy the entire `windsurf/` directory to your project:
+
+```bash
+# Copy entire bundle
+cp -r bundles/frontend-team/windsurf/ /path/to/your/project/.windsurf/
+
+# Or copy specific rules/workflows
+cp bundles/frontend-team/windsurf/rules/typescript.md /path/to/your/project/.windsurf/rules/
+cp bundles/frontend-team/windsurf/workflows/node-project-setup.md /path/to/your/project/.windsurf/workflows/
+```
+
+#### 3. Review Bundle Manifest
+Check the `bundle.yaml` file to understand:
+- Which rules will activate automatically vs. on-demand
+- Activation modes (always-on, model-decision, glob-based, manual)
+- Dependencies and compatibility requirements
+- Team-specific metadata and use cases
+
+#### 4. Customize for Your Project
+- Review each rule and workflow for relevance to your project
+- Modify activation modes if needed (e.g., change glob patterns)
+- Add or remove customizations based on your team's specific needs
+
 ### For Enterprise Teams
-1. **Study the Structure**: Examine the proposed bundle organization to understand team-focused distribution
-2. **Adapt for Your Organization**: Create your own internal catalog using the recommended structure
-3. **Create Team Bundles**: Group related customizations into team-specific `.windsurf` directories
-4. **Distribute to Teams**: Teams copy entire bundle directories to their Windsurf workspaces
-5. **Maintain Centrally**: Update bundles in your catalog and teams can pull updates as needed
+1. **Use as Reference**: Study the bundle organization to understand team-focused distribution
+2. **Adapt Structure**: Create your own internal catalog using the same bundle structure
+3. **Create Custom Bundles**: Group your proprietary customizations into team-specific bundles
+4. **Distribute Centrally**: Teams can copy entire bundle directories from your internal catalog
+5. **Version Control**: Use the bundle manifest system to track versions and dependencies
 
 ### For Individual Use
-1. **Browse Online**: Visit the [web catalog](https://windsurf-samples.github.io/cascade-customizations-catalog/web-ui/index.html) to explore available customizations
-2. **Local Browsing**: Browse the `.windsurf/rules/` and `.windsurf/workflows/` directories directly
-3. **Copy to Workspace**: Copy relevant `.md` files to your project's `.windsurf/` directory
+1. **Browse Online**: Visit the [web catalog](https://cognitionteam20scavenger.github.io/cascade-customizations-catalog/web-ui/index.html) to explore bundles and individual customizations
+2. **Local Browsing**: Browse the `bundles/{team-name}/windsurf/` directories directly
+3. **Selective Copying**: Copy specific rules or workflows that match your development needs
 4. **Learn More**: Refer to the [Windsurf documentation](https://docs.windsurf.com/windsurf/cascade/workflows) for more information
 
-## Implementation Recommendations
+## How to Find and Use Customizations
 
-To implement the proposed structure in your organization:
+### Finding Rules and Workflows
 
-1. **Eliminate Dual Directory System**: Maintain only `.windsurf/` directories with embedded metadata
-2. **Use Dynamic File Discovery**: Replace hardcoded file lists with directory scanning
-3. **Create Bundle Manifests**: Use `bundle.yaml` files to define team metadata and dependencies
-4. **Implement Bundle Versioning**: Track bundle versions for controlled distribution
-5. **Add Bundle Testing**: Validate that bundle combinations work together correctly
+#### By Team Focus
+Navigate directly to team-specific bundles:
+- `bundles/frontend-team/windsurf/` - React/TypeScript development
+- `bundles/backend-team/windsurf/` - Java/Spring backend services
+- `bundles/security-team/windsurf/` - Security practices
+- `bundles/devops-team/windsurf/` - Infrastructure and deployment
+
+#### By Type
+- **Rules** (`windsurf/rules/`): Automated coding guidelines that influence AI behavior
+- **Workflows** (`windsurf/workflows/`): Step-by-step procedures accessible via `/workflow-name`
+
+#### Using the Web Interface
+1. **Filter by Team**: Use team bundle filters to see all customizations for a specific team
+2. **Search by Technology**: Find customizations by language, framework, or tool
+3. **Preview Content**: Click any customization to view its full content and usage instructions
+4. **Download Options**: Copy individual files or download entire bundles
+
+### Understanding Activation Modes
+
+Rules in the bundles use different activation modes:
+
+- **Always-On**: Applied to every user message (e.g., security practices)
+- **Model-Decision**: Cascade chooses when to apply based on context (e.g., React patterns)
+- **Glob-Based**: Applied to files matching patterns (e.g., `*.ts,*.tsx` for TypeScript rules)
+- **Manual**: Applied only when explicitly requested by users (e.g., code review checklists)
+
+### Bundle Dependencies
+
+Each bundle's `bundle.yaml` file lists all included customizations with:
+- File paths within the bundle
+- Activation modes and glob patterns
+- Version requirements
+- Descriptions of each customization's purpose
 
 ## Contributing
 

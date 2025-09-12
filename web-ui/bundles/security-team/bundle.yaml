@@ -6,7 +6,7 @@ maintainers:
 
 dependencies:
   rules:
-    - path: "windsurf/rules/secure-coding.md"
+    - path: "security/secure-coding.md"
       version: ">=1.0.0"
       activation: "always-on"
       description: "Core secure coding practices for all languages"
@@ -21,6 +21,3 @@ metadata:
   team_size: "3-5 security engineers"
   last_updated: "2024-01-15"
   use_cases: ["security reviews", "compliance audits", "vulnerability assessment"]
-  dependencies_count: 1
-  rules_count: 1
-  workflows_count: 0

@@ -8,10 +8,10 @@ dependencies:
   rules: []
       
   workflows:
-    - path: "windsurf/workflows/dev-environment-setup.md"
+    - path: "workflows/setup/dev-environment-setup.md"
       version: ">=1.0.0"
       description: "Standardized development environment setup"
-    - path: "windsurf/workflows/debugging-issues.md"
+    - path: "workflows/maintenance/debugging-issues.md"
       version: ">=1.0.0"
       description: "Infrastructure debugging and troubleshooting"
 
@@ -23,6 +23,3 @@ metadata:
   team_size: "4-8 engineers"
   last_updated: "2024-01-15"
   use_cases: ["CI/CD", "infrastructure management", "monitoring", "deployment"]
-  dependencies_count: 2
-  rules_count: 0
-  workflows_count: 2

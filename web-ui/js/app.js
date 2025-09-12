@@ -7,7 +7,7 @@ import { CascadeCatalog } from './core/CascadeCatalog.js?v=20250815-rawfix';
 
 // Initialize the application when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    new CascadeCatalog();
+    window.app = new CascadeCatalog();
 });
 
 // Export for potential external use

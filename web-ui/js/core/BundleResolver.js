@@ -78,7 +78,15 @@ export class BundleResolver {
                 
                 if (indent === 0) {
                     if (cleanValue) {
-                        result[cleanKey] = cleanValue;
+                        if (cleanValue.startsWith('[') && cleanValue.endsWith(']')) {
+                            try {
+                                result[cleanKey] = JSON.parse(cleanValue);
+                            } catch (e) {
+                                result[cleanKey] = cleanValue.slice(1, -1).split(',').map(l => l.trim().replace(/['"]/g, ''));
+                            }
+                        } else {
+                            result[cleanKey] = cleanValue;
+                        }
                     } else {
                         result[cleanKey] = {};
                         currentSection = result[cleanKey];
@@ -87,14 +95,26 @@ export class BundleResolver {
                     }
                 } else if (indent === 2 && currentSection) {
                     if (cleanValue) {
-                        currentSection[cleanKey] = cleanValue;
+                        if (cleanValue.startsWith('[') && cleanValue.endsWith(']')) {
+                            try {
+                                currentSection[cleanKey] = JSON.parse(cleanValue);
+                            } catch (e) {
+                                currentSection[cleanKey] = cleanValue.slice(1, -1).split(',').map(l => l.trim().replace(/['"]/g, ''));
+                            }
+                        } else {
+                            currentSection[cleanKey] = cleanValue;
+                        }
                     } else {
                         currentSection[cleanKey] = [];
                         currentArray = currentSection[cleanKey];
                         currentItem = null;
                     }
-                } else if (indent >= 6 && currentItem) {
-                    currentItem[cleanKey] = cleanValue;
+                } else if (indent >= 4 && currentItem) {
+                    if (cleanKey === 'globs' && cleanValue) {
+                        currentItem[cleanKey] = cleanValue;
+                    } else {
+                        currentItem[cleanKey] = cleanValue;
+                    }
                 }
             } else if (trimmed.startsWith('-') && currentArray !== null) {
                 const content = trimmed.substring(1).trim();
@@ -107,6 +127,10 @@ export class BundleResolver {
                 } else if (content) {
                     currentArray.push(content);
                     currentItem = null;
+                } else {
+                    const item = {};
+                    currentArray.push(item);
+                    currentItem = item;
                 }
             }
         }
@@ -119,6 +143,8 @@ export class BundleResolver {
      */
     async resolveBundleDependencies(bundle) {
         const resolvedCustomizations = [];
+        
+        this.currentBundleName = bundle.bundleName;
         
         console.log('Resolving bundle dependencies for:', bundle.name, bundle.dependencies);
         
@@ -144,6 +170,8 @@ export class BundleResolver {
             }
         }
         
+        this.currentBundleName = null;
+        
         console.log('Resolved', resolvedCustomizations.length, 'customizations for bundle:', bundle.name);
         return resolvedCustomizations;
     }
@@ -155,6 +183,10 @@ export class BundleResolver {
         if (!dependency || !dependency.path) {
             console.warn('Invalid dependency:', dependency);
             return null;
+        }
+        
+        if (dependency.path.startsWith('windsurf/')) {
+            return this.resolveBundleInternalCustomization(dependency, type);
         }
         
         const pathParts = dependency.path.split('/');
@@ -181,11 +213,11 @@ export class BundleResolver {
         const baseName = filename.replace(/\.md$/i, '');
         const displayPath = this.dataLoader.isGitHubPages
             ? `${this.dataLoader.basePath}/docs/${type}/${category}/${baseName}${this.dataLoader.fileExtension}`
-            : `/cascade-customizations-catalog/docs/${type}/${category}/${baseName}.html`;
+            : `customizations/${category}/${baseName}.md`;
             
         const windsurfPath = this.dataLoader.isGitHubPages
             ? this.dataLoader.getRawGitHubUrl(`customizations/${category}/${filename}`)
-            : `${this.dataLoader.basePath}/customizations/${category}/${filename}`;
+            : `customizations/${category}/${filename}`;
         
         console.log(`Attempting to fetch: ${displayPath}`);
         try {
@@ -278,7 +310,15 @@ export class BundleResolver {
         if (!metadata.labels) {
             metadata.labels = [];
         } else if (typeof metadata.labels === 'string') {
-            metadata.labels = metadata.labels.split(',').map(l => l.trim());
+            if (metadata.labels.startsWith('[') && metadata.labels.endsWith(']')) {
+                try {
+                    metadata.labels = JSON.parse(metadata.labels);
+                } catch (e) {
+                    metadata.labels = metadata.labels.slice(1, -1).split(',').map(l => l.trim().replace(/['"]/g, ''));
+                }
+            } else {
+                metadata.labels = metadata.labels.split(',').map(l => l.trim());
+            }
         } else if (!Array.isArray(metadata.labels)) {
             metadata.labels = [];
         }
@@ -298,5 +338,128 @@ export class BundleResolver {
         }
         
         return metadata;
+    }
+    
+    /**
+     * Extract metadata from YAML frontmatter
+     */
+    extractMetadataFromYAML(content) {
+        const metadata = {};
+        
+        const yamlMatch = content.match(/^---\s*\n([\s\S]*?)\n---/);
+        if (yamlMatch) {
+            const yamlContent = yamlMatch[1];
+            const lines = yamlContent.split('\n');
+            
+            for (const line of lines) {
+                const colonIndex = line.indexOf(':');
+                if (colonIndex > 0) {
+                    const key = line.substring(0, colonIndex).trim();
+                    let value = line.substring(colonIndex + 1).trim();
+                    
+                    if (value.startsWith('"') && value.endsWith('"')) {
+                        value = value.slice(1, -1);
+                    }
+                    
+                    if (key === 'labels') {
+                        if (value.startsWith('[') && value.endsWith(']')) {
+                            value = value.slice(1, -1).split(',').map(l => l.trim().replace(/"/g, ''));
+                        } else if (typeof value === 'string') {
+                            value = [value];
+                        }
+                    }
+                    
+                    metadata[key] = value;
+                }
+            }
+        }
+        
+        return metadata;
+    }
+    
+    /**
+     * Resolve customization from bundle-internal windsurf directory
+     */
+    async resolveBundleInternalCustomization(dependency, type) {
+        const pathParts = dependency.path.split('/');
+        if (pathParts.length < 3 || pathParts[0] !== 'windsurf') {
+            console.warn('Invalid bundle-internal path format:', dependency.path);
+            return null;
+        }
+        
+        const subType = pathParts[1]; // 'rules' or 'workflows'
+        const filename = pathParts[2];
+        const baseName = filename.replace(/\.md$/i, '');
+        
+        const bundleName = this.findBundleForDependency(dependency);
+        if (!bundleName) {
+            console.warn('Could not determine bundle for dependency:', dependency.path);
+            return null;
+        }
+        
+        const displayPath = this.dataLoader.isGitHubPages
+            ? `${this.dataLoader.basePath}/bundles/${bundleName}/windsurf/${subType}/${baseName}${this.dataLoader.fileExtension}`
+            : `bundles/${bundleName}/windsurf/${subType}/${filename}`;
+            
+        const windsurfPath = this.dataLoader.isGitHubPages
+            ? this.dataLoader.getRawGitHubUrl(`bundles/${bundleName}/windsurf/${subType}/${filename}`)
+            : `bundles/${bundleName}/windsurf/${subType}/${filename}`;
+        
+        try {
+            const response = await fetch(displayPath);
+            if (!response.ok) {
+                console.warn(`Failed to fetch ${displayPath}: ${response.status}`);
+                return null;
+            }
+            
+            const content = await response.text();
+            
+            let metadata = {};
+            if (this.dataLoader.isGitHubPages) {
+                metadata = this.extractMetadataFromHTML(content);
+            } else {
+                metadata = this.extractMetadataFromYAML(content);
+            }
+            
+            return {
+                id: `${bundleName}-${subType}-${baseName}`,
+                title: dependency.description || this.generateTitle(filename),
+                description: this.extractDescription(content),
+                type: subType,
+                category: this.formatBundleCategory(bundleName),
+                labels: metadata.labels || [],
+                author: metadata.author || 'Team',
+                activation: dependency.activation || metadata.activation || 'manual',
+                filename: filename,
+                path: displayPath,
+                windsurfPath: windsurfPath,
+                modified: metadata.modified || new Date().toISOString(),
+                bundleReference: true,
+                bundleDependency: dependency
+            };
+        } catch (error) {
+            console.warn(`Failed to resolve bundle-internal customization ${dependency.path}:`, error);
+            return null;
+        }
+    }
+    
+    /**
+     * Find which bundle a dependency belongs to by checking current resolution context
+     */
+    findBundleForDependency(dependency) {
+        return this.currentBundleName || null;
+    }
+    
+    /**
+     * Format bundle name as category
+     */
+    formatBundleCategory(bundleName) {
+        const map = {
+            'frontend-team': 'Frontend Team',
+            'backend-team': 'Backend Team',
+            'security-team': 'Security Team',
+            'devops-team': 'DevOps Team'
+        };
+        return map[bundleName] || bundleName.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
     }
 }
