@@ -286,8 +286,13 @@
                             </p>
                         </div>
                     </div>
-                    <div class="text-right">
-                        <a href="https://github.com/CognitionTeam20Scavenger/cascade-customizations-catalog" 
+                    <div class="text-right flex gap-3">
+                        <a href="https://github.com/Windsurf-Samples/cascade-customizations-catalog/issues/new?template=new-customization.yaml" 
+                           class="inline-flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-300">
+                            <i class="fas fa-plus mr-2"></i>
+                            <span class="font-medium">Propose Changes</span>
+                        </a>
+                        <a href="https://github.com/Windsurf-Samples/cascade-customizations-catalog" 
                            class="inline-flex items-center px-4 py-2 bg-white bg-opacity-10 hover:bg-opacity-20 border border-white border-opacity-20 hover:border-opacity-30 rounded-lg transition-all duration-300 backdrop-blur-sm">
                             <i class="fab fa-github mr-2"></i>
                             <span class="font-medium">View on GitHub</span>
@@ -319,9 +324,6 @@
                     </button>
                     <button id="filterWorkflows" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all">
                         Workflows
-                    </button>
-                    <button id="filterBundles" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all">
-                        Bundles
                     </button>
                 </div>
                 
@@ -417,21 +419,33 @@
                             <span class="inline-block w-3 h-3 rounded-full bg-blue-500 mr-2"></span>
                             Languages
                         </button>
-                        <button class="category-filter w-full text-left px-3 py-2 rounded-lg text-sm font-medium" data-category="Frameworks & Libraries">
+                        <button class="category-filter w-full text-left px-3 py-2 rounded-lg text-sm font-medium" data-category="Frameworks">
                             <span class="inline-block w-3 h-3 rounded-full bg-green-500 mr-2"></span>
-                            Frameworks & Libraries
+                            Frameworks
                         </button>
                         <button class="category-filter w-full text-left px-3 py-2 rounded-lg text-sm font-medium" data-category="Security">
                             <span class="inline-block w-3 h-3 rounded-full bg-purple-500 mr-2"></span>
                             Security
                         </button>
-                        <button class="category-filter w-full text-left px-3 py-2 rounded-lg text-sm font-medium" data-category="Style">
-                            <span class="inline-block w-3 h-3 rounded-full bg-red-600 mr-2"></span>
-                            Style
+                        <button class="category-filter w-full text-left px-3 py-2 rounded-lg text-sm font-medium" data-category="Cloud">
+                            <span class="inline-block w-3 h-3 rounded-full bg-cyan-500 mr-2"></span>
+                            Cloud
                         </button>
-                        <button class="category-filter w-full text-left px-3 py-2 rounded-lg text-sm font-medium" data-category="Team Bundles">
+                        <button class="category-filter w-full text-left px-3 py-2 rounded-lg text-sm font-medium" data-category="DevOps">
                             <span class="inline-block w-3 h-3 rounded-full bg-orange-500 mr-2"></span>
-                            Team Bundles
+                            DevOps
+                        </button>
+                        <button class="category-filter w-full text-left px-3 py-2 rounded-lg text-sm font-medium" data-category="Testing">
+                            <span class="inline-block w-3 h-3 rounded-full bg-yellow-500 mr-2"></span>
+                            Testing
+                        </button>
+                        <button class="category-filter w-full text-left px-3 py-2 rounded-lg text-sm font-medium" data-category="Networking">
+                            <span class="inline-block w-3 h-3 rounded-full bg-indigo-500 mr-2"></span>
+                            Networking
+                        </button>
+                        <button class="category-filter w-full text-left px-3 py-2 rounded-lg text-sm font-medium" data-category="Monitoring">
+                            <span class="inline-block w-3 h-3 rounded-full bg-pink-500 mr-2"></span>
+                            Monitoring
                         </button>
                     </div>
                 </div>
@@ -509,22 +523,22 @@
                 </button>
             </div>
             <div id="modalScrollArea" class="p-6 overflow-y-auto flex-1 min-h-0">
-                <div id="modalRawSection" class="mt-2 mb-6 rounded-lg border border-gray-200 bg-white shadow-sm">
+                <div id="modalContent" class="prose max-w-none">
+                    <!-- Content will be populated by JavaScript -->
+                </div>
+                <div id="modalRawSection" class="hidden mt-6 rounded-lg border border-gray-200 bg-white shadow-sm">
                     <div id="modalRawHeader" class="flex items-center justify-between px-3 py-2 border-b bg-gray-50 rounded-t-lg">
                         <div class="flex items-center gap-2">
                             <i class="fas fa-file-code text-gray-500"></i>
-                            <h3 class="text-sm font-medium text-gray-700">Raw Source (Markdown)</h3>
+                            <h3 class="text-sm font-medium text-gray-700">Raw Source with Metadata</h3>
                         </div>
                         <button id="copyRawBtn" class="text-xs bg-gray-800 hover:bg-gray-700 text-white px-2.5 py-1.5 rounded-md" aria-label="Copy raw markdown">
                             <i class="fas fa-copy mr-1"></i>Copy
                         </button>
                     </div>
                     <div class="p-3">
-                        <pre id="modalRawPre" class="max-h-48 overflow-auto rounded-md bg-gray-50 border border-gray-200"><code id="modalRawCode" class="language-markdown text-xs font-mono text-gray-800">Loading...</code></pre>
+                        <pre id="modalRawPre" class="max-h-96 overflow-auto rounded-md bg-gray-50 border border-gray-200"><code id="modalRawCode" class="language-markdown text-xs font-mono text-gray-800">Loading...</code></pre>
                     </div>
-                </div>
-                <div id="modalContent" class="prose max-w-none">
-                    <!-- Content will be populated by JavaScript -->
                 </div>
             </div>
             <div class="flex justify-between items-center p-6 border-t bg-gray-50">
@@ -535,6 +549,9 @@
                     </div>
                 </div>
                 <div class="flex gap-2">
+                    <button id="toggleMetadataBtn" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md transition-all text-sm whitespace-nowrap">
+                        <i class="fas fa-code mr-1"></i> Show Raw with Metadata
+                    </button>
                     <button id="downloadBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md transition-all text-sm whitespace-nowrap">
                         <i class="fas fa-download mr-1"></i> Download
                     </button>

@@ -42,6 +42,29 @@ export class ModalManager {
                 await this.copyRawContent();
             });
         }
+        
+        const toggleMetadataBtn = document.getElementById('toggleMetadataBtn');
+        if (toggleMetadataBtn) {
+            toggleMetadataBtn.addEventListener('click', () => this.toggleMetadataDisplay());
+        }
+    }
+    
+    toggleMetadataDisplay() {
+        const renderedContent = document.getElementById('modalContent');
+        const rawSection = document.getElementById('modalRawSection');
+        const toggleBtn = document.getElementById('toggleMetadataBtn');
+        
+        if (!renderedContent || !rawSection || !toggleBtn) return;
+        
+        if (rawSection.classList.contains('hidden')) {
+            rawSection.classList.remove('hidden');
+            renderedContent.classList.add('hidden');
+            toggleBtn.innerHTML = '<i class="fas fa-eye mr-2"></i>Show Rendered';
+        } else {
+            rawSection.classList.add('hidden');
+            renderedContent.classList.remove('hidden');
+            toggleBtn.innerHTML = '<i class="fas fa-code mr-2"></i>Show Raw with Metadata';
+        }
     }
     
     async openModal(customization) {
@@ -96,10 +119,6 @@ export class ModalManager {
                 typeIcon = 'fas fa-list-ol';
                 badgeClass = 'type-badge--workflows';
                 typeLabel = 'Workflow';
-            } else if (customization.type === 'bundle') {
-                typeIcon = 'fas fa-box';
-                badgeClass = 'type-badge--bundles';
-                typeLabel = 'Bundle';
             }
             
             typeBadge.className = `type-badge ${badgeClass}`;
@@ -122,11 +141,6 @@ export class ModalManager {
     async updateModalContent(customization) {
         const contentContainer = document.getElementById('modalContent');
         if (!contentContainer) return;
-        
-        if (customization.type === 'bundle') {
-            await this.displayBundleContent(customization);
-            return;
-        }
         
         contentContainer.innerHTML = '<div class="flex justify-center py-8"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>';
         
@@ -175,57 +189,6 @@ export class ModalManager {
         }
     }
 
-    async displayBundleContent(customization) {
-        const contentContainer = document.getElementById('modalContent');
-        const bundle = customization.bundle;
-        
-        let bundleHtml = `
-            <div class="bundle-overview">
-                <h3>Bundle Overview</h3>
-                <p>${bundle.description}</p>
-                <div class="bundle-metadata">
-                    <div class="metadata-item">
-                        <strong>Version:</strong> ${bundle.version}
-                    </div>
-                    <div class="metadata-item">
-                        <strong>Team Size:</strong> ${bundle.metadata?.team_size || 'Not specified'}
-                    </div>
-                    <div class="metadata-item">
-                        <strong>Use Cases:</strong> ${bundle.metadata?.use_cases?.join(', ') || 'Not specified'}
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        if (customization.bundleCustomizations && customization.bundleCustomizations.length > 0) {
-            bundleHtml += `
-                <div class="bundle-dependencies">
-                    <h3>Included Customizations</h3>
-                    <div class="dependency-list">
-            `;
-            
-            customization.bundleCustomizations.forEach(dep => {
-                bundleHtml += `
-                    <div class="dependency-item">
-                        <div class="dependency-header">
-                            <span class="dependency-title">${dep.title}</span>
-                            <span class="dependency-type type-badge type-badge--${dep.type}">${dep.type}</span>
-                        </div>
-                        <div class="dependency-description">${dep.description}</div>
-                        <div class="dependency-activation">Activation: ${dep.activation}</div>
-                    </div>
-                `;
-            });
-            
-            bundleHtml += `
-                    </div>
-                </div>
-            `;
-        }
-        
-        contentContainer.innerHTML = bundleHtml;
-    }
-    
     updateModalActions(customization) {
         // Update download button filename
         const downloadBtn = document.getElementById('downloadBtn');
@@ -257,11 +220,6 @@ export class ModalManager {
     async downloadCurrent() {
         if (!this.currentCustomization) return;
         
-        if (this.currentCustomization.type === 'bundle') {
-            await this.downloadBundle(this.currentCustomization);
-            return;
-        }
-        
         try {
             await FileUtils.downloadFile(
                 this.currentCustomization.windsurfPath, 
@@ -269,22 +227,6 @@ export class ModalManager {
             );
         } catch (error) {
             alert(error.message);
-        }
-    }
-
-    async downloadBundle(customization) {
-        const bundle = customization.bundle;
-        const bundleCustomizations = customization.bundleCustomizations || [];
-        
-        try {
-            await FileUtils.downloadFile(
-                customization.windsurfPath,
-                `${bundle.bundleName}-bundle.yaml`
-            );
-            
-            alert(`Bundle manifest downloaded! This bundle contains ${bundleCustomizations.length} customizations. You can copy individual items by viewing them in the bundle.`);
-        } catch (error) {
-            alert(`Failed to download bundle: ${error.message}`);
         }
     }
     
