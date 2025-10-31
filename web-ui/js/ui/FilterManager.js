@@ -149,13 +149,17 @@ export class FilterManager {
         const newContainer = container.cloneNode(false);
         container.parentNode.replaceChild(newContainer, container);
         
-        // Fixed label categories mapping (restored from pre-refactor)
+        // Fixed label categories mapping
         const labelCategories = {
             'Languages': ['javascript', 'typescript', 'python', 'java', 'csharp', 'cpp', 'rust', 'go', 'php', 'ruby', 'swift', 'kotlin', 'dart'],
-            'Frameworks & Libraries': ['react', 'vue', 'angular', 'svelte', 'nextjs', 'nuxtjs', 'express', 'fastapi', 'django', 'flask', 'spring', 'dotnet', 'laravel', 'rails'],
+            'Frameworks': ['react', 'vue', 'angular', 'svelte', 'nextjs', 'nuxtjs', 'express', 'fastapi', 'django', 'flask', 'spring', 'dotnet', 'laravel', 'rails'],
             'Security': ['security', 'authentication', 'authorization', 'encryption', 'vulnerability', 'secure-coding', 'input-validation', 'sql-injection', 'xss', 'csrf', 'https', 'oauth', 'jwt', 'penetration-testing', 'security-audit'],
-            'Style': ['code-style', 'formatting', 'naming-conventions', 'best-practices', 'code-review', 'linting', 'prettier', 'eslint', 'clean-code', 'refactoring', 'documentation', 'comments'],
-            'Team Bundles': ['frontend', 'backend', 'security', 'devops', 'microservices', 'apis', 'infrastructure', 'deployment', 'monitoring']
+            'Cloud': ['aws', 'azure', 'gcp', 'cloud', 'serverless', 'lambda', 's3', 'ec2', 'kubernetes', 'docker'],
+            'DevOps': ['ci-cd', 'deployment', 'monitoring', 'logging', 'infrastructure', 'terraform', 'ansible', 'jenkins', 'github-actions'],
+            'Testing': ['testing', 'jest', 'cypress', 'playwright', 'unit-testing', 'integration-testing', 'e2e-testing'],
+            'Networking': ['networking', 'http', 'tcp', 'api', 'rest', 'graphql', 'grpc', 'websockets'],
+            'Monitoring': ['monitoring', 'observability', 'prometheus', 'grafana', 'datadog', 'sentry', 'logging'],
+            'General': ['best-practices', 'code-review', 'refactoring', 'documentation', 'performance', 'accessibility', 'code-style', 'formatting', 'naming-conventions', 'linting', 'prettier', 'eslint', 'clean-code', 'comments']
         };
         
         // Build labelsByCategory and collect all labels with metadata

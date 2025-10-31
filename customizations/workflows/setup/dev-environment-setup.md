@@ -1,5 +1,6 @@
 ---
 description: Complete development environment setup workflow for new team members or fresh machines
+auto_execution: safe
 ---
 
 This workflow guides you through setting up a complete development environment from scratch, including essential tools, configurations, and team-specific requirements.

@@ -1,5 +1,6 @@
 ---
 description: Systematic debugging workflow for identifying and resolving software issues
+auto_execution: safe
 ---
 
 This workflow provides a structured approach to debugging issues, from initial problem identification to resolution and prevention.

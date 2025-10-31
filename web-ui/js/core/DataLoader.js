@@ -1,7 +1,5 @@
 import { MetadataExtractor } from './MetadataExtractor.js?v=final';
 import { DateUtils } from '../utils/DateUtils.js?v=final';
-import { BundleResolver } from './BundleResolver.js?v=20250911-yamlfix';
-import { DirectoryScanner } from '../utils/DirectoryScanner.js?v=dynamic';
 
 /**
  * Handles data loading and processing with environment-aware path resolution
@@ -11,11 +9,6 @@ export class DataLoader {
         this.isGitHubPages = window.location.hostname.includes('github.io');
         this.basePath = this.getBasePath();
         this.fileExtension = this.isGitHubPages ? '.html' : '.md';
-        this.bundleResolver = new BundleResolver(this);
-        this.directoryScanner = new DirectoryScanner(this.isGitHubPages, this.basePath, this.fileExtension);
-        
-        this.enableBundleVisualization = true;
-        this.enableNewPathResolution = true;
         
         this.ruleToBundleMapping = {
             'react.md': 'frontend-team',
@@ -71,29 +64,7 @@ export class DataLoader {
             const workflowsData = await this.loadCustomizationsFromDirectory('workflows');
             customizations.push(...workflowsData);
             
-            const bundles = await this.bundleResolver.loadBundles();
-            for (const bundle of bundles) {
-                customizations.push({
-                    id: bundle.id,
-                    title: bundle.name,
-                    description: bundle.description,
-                    type: 'bundle',
-                    category: 'Team Bundles',
-                    labels: bundle.metadata?.tags || [],
-                    author: bundle.maintainers?.[0] || 'Team',
-                    activation: 'bundle',
-                    filename: 'bundle.yaml',
-                    path: bundle.manifestPath,
-                    windsurfPath: this.isGitHubPages
-                        ? this.getRawGitHubUrl(`bundles/${bundle.bundleName}/bundle.yaml`)
-                        : `bundles/${bundle.bundleName}/bundle.yaml`,
-                    modified: bundle.metadata?.last_updated || new Date().toISOString(),
-                    bundle: bundle,
-                    bundleCustomizations: await this.bundleResolver.resolveBundleDependencies(bundle)
-                });
-            }
-            
-            console.log(`Loaded ${customizations.length} items total (including bundles)`);
+            console.log(`Loaded ${customizations.length} items total`);
             return customizations;
         } catch (error) {
             console.error('Failed to load customizations:', error);
@@ -104,27 +75,43 @@ export class DataLoader {
     async loadCustomizationsFromDirectory(type) {
         const customizations = [];
         
-        try {
-            const discoveredFiles = await this.directoryScanner.discoverFiles(type);
-            
-            for (const fileInfo of discoveredFiles) {
-                try {
-                    const item = await this.loadSingleCustomization(fileInfo, type, fileInfo.subdir);
-                    if (item) customizations.push(item);
-                } catch (error) {
-                    console.warn(`Failed to load ${fileInfo.filename}:`, error);
-                }
+        const subdirs = type === 'rules' 
+            ? ['framework', 'language', 'security', 'style']
+            : ['setup', 'maintenance'];
+        
+        for (const subdir of subdirs) {
+            try {
+                const items = await this.loadFromSubdirectory(type, subdir);
+                customizations.push(...items);
+            } catch (error) {
+                console.warn(`Failed to load ${type}/${subdir}:`, error);
             }
-        } catch (error) {
-            console.error(`Failed to discover files for ${type}:`, error);
         }
         
         return customizations;
     }
     
     async loadFromSubdirectory(type, subdir) {
-        console.warn('loadFromSubdirectory is deprecated - use DirectoryScanner instead');
-        return [];
+        const customizations = [];
+        const files = ['java.md', 'react.md', 'typescript.md', 'secure-coding.md', 'node-project-setup.md', 'debugging-issues.md', 'dev-environment-setup.md'];
+        
+        for (const filename of files) {
+            const fileInfo = {
+                filename: filename,
+                title: filename.replace('.md', '').replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                subdir: subdir,
+                displayPath: null
+            };
+            
+            try {
+                const item = await this.loadSingleCustomization(fileInfo, type, subdir);
+                if (item) customizations.push(item);
+            } catch (error) {
+                console.warn(`Failed to load ${filename}:`, error);
+            }
+        }
+        
+        return customizations;
     }
     
     
@@ -238,20 +225,23 @@ export class DataLoader {
     
     formatCategory(key) {
         const map = {
-            // Rules categories
             'language': 'Languages',
             'languages': 'Languages',
-            'framework': 'Frameworks & Libraries',
-            'frameworks & libraries': 'Frameworks & Libraries',
+            'framework': 'Frameworks',
+            'frameworks': 'Frameworks',
             'security': 'Security',
-            'style': 'Style',
-            // Workflow categories (not shown in sidebar but used for display)
+            'networking': 'Networking',
+            'cloud': 'Cloud',
+            'devops': 'DevOps',
+            'testing': 'Testing',
+            'monitoring': 'Monitoring',
+            'general': 'General',
+            'setup': 'Setup',
             'maintenance': 'Maintenance',
-            'setup': 'Setup'
+            'style': 'Style'
         };
         const normalized = String(key || '').toLowerCase();
         if (map[normalized]) return map[normalized];
-        // Fallback: Title Case
         return normalized.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
     }
 }

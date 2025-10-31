@@ -1,5 +1,6 @@
 ---
 description: Complete setup workflow for a new Node.js project with TypeScript and testing
+auto_execution: safe
 ---
 
 This workflow guides you through setting up a professional Node.js project with TypeScript, testing, and development tools.
