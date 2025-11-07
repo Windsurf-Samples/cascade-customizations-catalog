@@ -154,8 +154,7 @@ export class FilterManager {
             'Languages': ['javascript', 'typescript', 'python', 'java', 'csharp', 'cpp', 'rust', 'go', 'php', 'ruby', 'swift', 'kotlin', 'dart'],
             'Frameworks & Libraries': ['react', 'vue', 'angular', 'svelte', 'nextjs', 'nuxtjs', 'express', 'fastapi', 'django', 'flask', 'spring', 'dotnet', 'laravel', 'rails'],
             'Security': ['security', 'authentication', 'authorization', 'encryption', 'vulnerability', 'secure-coding', 'input-validation', 'sql-injection', 'xss', 'csrf', 'https', 'oauth', 'jwt', 'penetration-testing', 'security-audit'],
-            'Style': ['code-style', 'formatting', 'naming-conventions', 'best-practices', 'code-review', 'linting', 'prettier', 'eslint', 'clean-code', 'refactoring', 'documentation', 'comments'],
-            'Team Bundles': ['frontend', 'backend', 'security', 'devops', 'microservices', 'apis', 'infrastructure', 'deployment', 'monitoring']
+            'Style': ['code-style', 'formatting', 'naming-conventions', 'best-practices', 'code-review', 'linting', 'prettier', 'eslint', 'clean-code', 'refactoring', 'documentation', 'comments']
         };
         
         // Build labelsByCategory and collect all labels with metadata

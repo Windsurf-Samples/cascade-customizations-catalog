@@ -3,6 +3,7 @@ import { FilterManager } from '../ui/FilterManager.js?v=20250815-rawfix';
 import { ViewRenderer } from '../ui/ViewRenderer.js?v=20250815-rawfix';
 import { ModalManager } from '../ui/ModalManager.js?v=20250911-yamlfix';
 import { SidebarManager } from '../ui/SidebarManager.js?v=20250815-rawfix';
+import { SubmissionFormManager } from '../ui/SubmissionFormManager.js?v=20250815-submission';
 
 /**
  * Main application class - orchestrates all components
@@ -19,6 +20,7 @@ export class CascadeCatalog {
         this.viewRenderer = new ViewRenderer();
         this.modalManager = new ModalManager();
         this.sidebarManager = new SidebarManager();
+        this.submissionFormManager = new SubmissionFormManager();
         
         // Set up component callbacks
         this.setupComponentCallbacks();
@@ -81,7 +83,6 @@ export class CascadeCatalog {
         const filterAll = document.getElementById('filterAll');
         const filterRules = document.getElementById('filterRules');
         const filterWorkflows = document.getElementById('filterWorkflows');
-        const filterBundles = document.getElementById('filterBundles');
         
         if (filterAll) filterAll.addEventListener('click', () => {
             this.filterManager.setTypeFilter('all');
@@ -95,11 +96,6 @@ export class CascadeCatalog {
         
         if (filterWorkflows) filterWorkflows.addEventListener('click', () => {
             this.filterManager.setTypeFilter('workflows');
-            this.filterManager.onFiltersChanged();
-        });
-        
-        if (filterBundles) filterBundles.addEventListener('click', () => {
-            this.filterManager.setTypeFilter('bundle');
             this.filterManager.onFiltersChanged();
         });
 
@@ -169,7 +165,6 @@ export class CascadeCatalog {
         // Count by type
         const rulesCount = this.customizations.filter(c => c.type === 'rules').length;
         const workflowsCount = this.customizations.filter(c => c.type === 'workflows').length;
-        const bundlesCount = this.customizations.filter(c => c.type === 'bundle').length;
         
         // Update result count
         const resultCount = document.getElementById('resultCount');
@@ -180,12 +175,10 @@ export class CascadeCatalog {
         // Update individual type counters in the stats section
         const rulesCountEl = document.getElementById('totalRules');
         const workflowsCountEl = document.getElementById('totalWorkflows');
-        const bundlesCountEl = document.getElementById('totalBundles');
         const totalCountEl = document.getElementById('totalCustomizations');
         
         if (rulesCountEl) rulesCountEl.textContent = rulesCount;
         if (workflowsCountEl) workflowsCountEl.textContent = workflowsCount;
-        if (bundlesCountEl) bundlesCountEl.textContent = bundlesCount;
         if (totalCountEl) totalCountEl.textContent = totalCount;
         
         // Update stats in header if they exist

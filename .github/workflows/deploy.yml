@@ -22,6 +22,28 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Update DirectoryScanner job
+  update-scanner:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Update DirectoryScanner
+        run: node scripts/update-directory-scanner.js
+      
+      - name: Commit changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add web-ui/js/utils/DirectoryScanner.js
+          git diff --quiet && git diff --staged --quiet || git commit -m "Auto-update DirectoryScanner with new files [skip ci]"
+          git push || true
+  
   # Build job
   build:
     runs-on: ubuntu-latest

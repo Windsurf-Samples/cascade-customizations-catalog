@@ -1,7 +1,6 @@
-import { MetadataExtractor } from './MetadataExtractor.js?v=final';
-import { DateUtils } from '../utils/DateUtils.js?v=final';
-import { BundleResolver } from './BundleResolver.js?v=20250911-yamlfix';
-import { DirectoryScanner } from '../utils/DirectoryScanner.js?v=dynamic';
+import { MetadataExtractor } from './MetadataExtractor.js?v=20251107';
+import { DateUtils } from '../utils/DateUtils.js?v=20251107';
+import { DirectoryScanner } from '../utils/DirectoryScanner.js?v=20251107';
 
 /**
  * Handles data loading and processing with environment-aware path resolution
@@ -11,23 +10,9 @@ export class DataLoader {
         this.isGitHubPages = window.location.hostname.includes('github.io');
         this.basePath = this.getBasePath();
         this.fileExtension = this.isGitHubPages ? '.html' : '.md';
-        this.bundleResolver = new BundleResolver(this);
         this.directoryScanner = new DirectoryScanner(this.isGitHubPages, this.basePath, this.fileExtension);
         
-        this.enableBundleVisualization = true;
         this.enableNewPathResolution = true;
-        
-        this.ruleToBundleMapping = {
-            'react.md': 'frontend-team',
-            'typescript.md': 'frontend-team',
-            'java.md': 'backend-team',
-            'secure-coding.md': 'security-team',
-            'code-review-checklist.md': 'frontend-team',
-            'coding-best-practices.md': 'frontend-team',
-            'debugging-issues.md': 'devops-team',
-            'dev-environment-setup.md': 'devops-team',
-            'node-project-setup.md': 'frontend-team'
-        };
     }
     
     getBasePath() {
@@ -71,29 +56,7 @@ export class DataLoader {
             const workflowsData = await this.loadCustomizationsFromDirectory('workflows');
             customizations.push(...workflowsData);
             
-            const bundles = await this.bundleResolver.loadBundles();
-            for (const bundle of bundles) {
-                customizations.push({
-                    id: bundle.id,
-                    title: bundle.name,
-                    description: bundle.description,
-                    type: 'bundle',
-                    category: 'Team Bundles',
-                    labels: bundle.metadata?.tags || [],
-                    author: bundle.maintainers?.[0] || 'Team',
-                    activation: 'bundle',
-                    filename: 'bundle.yaml',
-                    path: bundle.manifestPath,
-                    windsurfPath: this.isGitHubPages
-                        ? this.getRawGitHubUrl(`bundles/${bundle.bundleName}/bundle.yaml`)
-                        : `bundles/${bundle.bundleName}/bundle.yaml`,
-                    modified: bundle.metadata?.last_updated || new Date().toISOString(),
-                    bundle: bundle,
-                    bundleCustomizations: await this.bundleResolver.resolveBundleDependencies(bundle)
-                });
-            }
-            
-            console.log(`Loaded ${customizations.length} items total (including bundles)`);
+            console.log(`Loaded ${customizations.length} items total`);
             return customizations;
         } catch (error) {
             console.error('Failed to load customizations:', error);
@@ -131,16 +94,23 @@ export class DataLoader {
     async loadSingleCustomization(fileInfo, type, subdir) {
         const baseName = fileInfo.filename.replace(/\.md$/i, '');
         
-        const filePath = fileInfo.displayPath || `${this.basePath}/docs/${type}/${subdir}/${baseName}${this.fileExtension}`;
+        // Use customizations directory for both display and download
+        let filePath;
+        if (this.isGitHubPages) {
+            // GitHub Pages: Jekyll converts .md to .html
+            filePath = `${this.basePath}/customizations/${type}/${subdir}/${baseName}${this.fileExtension}`;
+        } else {
+            // Local development
+            filePath = fileInfo.displayPath;
+        }
         
-        const bundleName = this.ruleToBundleMapping[fileInfo.filename];
-        const windsurfPath = bundleName 
-            ? (this.isGitHubPages
-                ? this.getRawGitHubUrl(`bundles/${bundleName}/windsurf/${type}/${baseName}.md`)
-                : `bundles/${bundleName}/windsurf/${type}/${baseName}.md`)
-            : (this.isGitHubPages
-                ? this.getRawGitHubUrl(`.windsurf/${type}/${subdir ? subdir + '/' : ''}${baseName}.md`)
-                : `${this.basePath}/.windsurf/${type}/${subdir ? subdir + '/' : ''}${baseName}.md`);
+        // windsurfPath is the same as filePath since we're using one directory
+        let windsurfPath;
+        if (this.isGitHubPages) {
+            windsurfPath = this.getRawGitHubUrl(`customizations/${type}/${subdir}/${baseName}.md`);
+        } else {
+            windsurfPath = filePath;
+        }
         
         try {
             const response = await fetch(filePath);
@@ -156,9 +126,9 @@ export class DataLoader {
                 metadata = MetadataExtractor.extractMetadataFromYAML(content);
             }
             
-            // Fallback label extraction if no metadata labels found
-            if (!metadata.labels || metadata.labels.length === 0) {
-                metadata.labels = MetadataExtractor.extractLabelsFromContent(content);
+            // Only use YAML labels - no automatic content extraction
+            if (!metadata.labels) {
+                metadata.labels = [];
             }
             
             // Extract description from content

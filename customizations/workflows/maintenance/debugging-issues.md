@@ -1,6 +1,13 @@
 ---
 description: Systematic debugging workflow for identifying and resolving software issues
+labels: debugging, workflow
+author: Windsurf Team
+modified: 2025-11-07
 ---
+
+# Debugging Issues Workflow
+
+## Description
 
 This workflow provides a structured approach to debugging issues, from initial problem identification to resolution and prevention.
 
