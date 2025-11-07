@@ -224,7 +224,7 @@ export class SubmissionFormManager {
         });
     }
     
-    async handleSubmit() {
+    handleSubmit() {
         const submitBtn = document.getElementById('submitButton');
         const originalText = submitBtn.innerHTML;
         
@@ -249,9 +249,9 @@ export class SubmissionFormManager {
                 examples: document.getElementById('submitExamples').value
             };
             
-            const result = await this.submitToBackend(formData);
+            this.createGitHubIssue(formData);
             
-            alert(`Success! ${result.message}\n\nFile created at: ${result.file_path}\nCommit: ${result.commit_sha.substring(0, 7)}`);
+            alert('Opening GitHub issue creation page. Please review and submit the issue.');
             this.closeModal();
             
         } catch (error) {
@@ -263,39 +263,36 @@ export class SubmissionFormManager {
         }
     }
     
-    async submitToBackend(formData) {
-        const apiUrl = 'http://localhost:8001/api/submit';
+    createGitHubIssue(formData) {
+        const issueTitle = encodeURIComponent(`[Submission] ${formData.title}`);
         
-        try {
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    title: formData.title,
-                    description: formData.description,
-                    category: formData.category,
-                    subcategory: formData.subcategory || null,
-                    labels: formData.labels,
-                    activation: formData.activation || null,
-                    content: formData.content,
-                    instructions: formData.instructions || null,
-                    examples: formData.examples || null
-                })
-            });
-            
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.detail || 'Submission failed');
-            }
-            
-            const result = await response.json();
-            return result;
-            
-        } catch (error) {
-            console.error('Submission error:', error);
-            throw error;
+        let issueBody = `## Customization Details\n\n`;
+        issueBody += `**Title:** ${formData.title}\n\n`;
+        issueBody += `**Description:** ${formData.description}\n\n`;
+        issueBody += `**Category:** ${formData.category}\n\n`;
+        
+        if (formData.subcategory) {
+            issueBody += `**Subcategory:** ${formData.subcategory}\n\n`;
         }
+        
+        if (formData.activation) {
+            issueBody += `**Activation Mode:** ${formData.activation}\n\n`;
+        }
+        
+        issueBody += `**Labels:** ${formData.labels.join(', ')}\n\n`;
+        issueBody += `## Content\n\n\`\`\`markdown\n${formData.content}\n\`\`\`\n\n`;
+        
+        if (formData.instructions) {
+            issueBody += `## Usage Instructions\n\n${formData.instructions}\n\n`;
+        }
+        
+        if (formData.examples) {
+            issueBody += `## Usage Examples\n\n${formData.examples}\n\n`;
+        }
+        
+        const encodedBody = encodeURIComponent(issueBody);
+        const issueUrl = `https://github.com/Windsurf-Samples/cascade-customizations-catalog/issues/new?title=${issueTitle}&body=${encodedBody}`;
+        
+        window.open(issueUrl, '_blank');
     }
 }

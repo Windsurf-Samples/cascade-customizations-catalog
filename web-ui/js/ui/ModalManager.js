@@ -34,17 +34,9 @@ export class ModalManager {
         if (copyBtn) {
             copyBtn.addEventListener('click', () => this.copyCurrent());
         }
-        
-        // Copy raw content button
-        const copyRawBtn = document.getElementById('copyRawBtn');
-        if (copyRawBtn) {
-            copyRawBtn.addEventListener('click', async () => {
-                await this.copyRawContent();
-            });
-        }
     }
     
-    async openModal(customization) {
+    openModal(customization) {
         this.currentCustomization = customization;
         
         // Update modal content
@@ -58,9 +50,6 @@ export class ModalManager {
             modal.classList.add('active');
             document.body.style.overflow = 'hidden'; // Prevent background scrolling
         }
-        
-        // Load raw content for the viewer (positioned at top per user preference)
-        await this.populateRawContent(customization);
     }
     
     closeModal() {
@@ -230,26 +219,6 @@ export class ModalManager {
         }
     }
     
-    async populateRawContent(customization) {
-        const codeEl = document.getElementById('modalRawCode');
-        if (!codeEl) return;
-        
-        try {
-            const response = await fetch(customization.windsurfPath + `?v=${Date.now()}`, { cache: 'no-store' });
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            
-            const content = await response.text();
-            codeEl.textContent = content;
-            
-            if (window.Prism && typeof Prism.highlightElement === 'function') {
-                Prism.highlightElement(codeEl);
-            }
-        } catch (err) {
-            console.warn('Failed to load raw content:', err);
-            codeEl.textContent = 'Unable to load source content. You can still use Download or Copy.';
-        }
-    }
-    
     async downloadCurrent() {
         if (!this.currentCustomization) return;
         
@@ -300,28 +269,6 @@ export class ModalManager {
             }
         } catch (error) {
             alert(error.message);
-        }
-    }
-    
-    async copyRawContent() {
-        const codeEl = document.getElementById('modalRawCode');
-        const text = codeEl ? codeEl.textContent : '';
-        
-        if (text && text !== 'Loading...') {
-            try {
-                await navigator.clipboard.writeText(text);
-                
-                const copyRawBtn = document.getElementById('copyRawBtn');
-                if (copyRawBtn) {
-                    FileUtils.showButtonFeedback(copyRawBtn, 'Copied!', 1800);
-                }
-            } catch (e) {
-                // Fallback to fetch-based copy
-                await this.copyCurrent();
-            }
-        } else {
-            // If not yet loaded, fallback
-            await this.copyCurrent();
         }
     }
     
