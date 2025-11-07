@@ -154,11 +154,45 @@ export class SubmissionFormManager {
         const subcategoryContainer = document.getElementById('subcategoryContainer');
         const activationContainer = document.getElementById('activationContainer');
         const subcategorySelect = document.getElementById('submitSubcategory');
+        const subcategoryLabel = document.getElementById('subcategoryLabel');
         
-        if (category === 'Rule') {
+        if (category === 'Rule' || category === 'Workflow') {
             subcategoryContainer.classList.remove('hidden');
-            activationContainer.classList.remove('hidden');
             subcategorySelect.required = true;
+            
+            // Clear existing options
+            subcategorySelect.innerHTML = '<option value="">Select subcategory...</option>';
+            
+            // Populate options based on category
+            if (category === 'Rule') {
+                activationContainer.classList.remove('hidden');
+                subcategoryLabel.textContent = 'Rule Subcategory';
+                const ruleOptions = [
+                    { value: 'framework', label: 'Framework' },
+                    { value: 'language', label: 'Language' },
+                    { value: 'security', label: 'Security' },
+                    { value: 'style', label: 'Style' }
+                ];
+                ruleOptions.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt.value;
+                    option.textContent = opt.label;
+                    subcategorySelect.appendChild(option);
+                });
+            } else if (category === 'Workflow') {
+                activationContainer.classList.add('hidden');
+                subcategoryLabel.textContent = 'Workflow Subcategory';
+                const workflowOptions = [
+                    { value: 'maintenance', label: 'Maintenance' },
+                    { value: 'setup', label: 'Setup' }
+                ];
+                workflowOptions.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt.value;
+                    option.textContent = opt.label;
+                    subcategorySelect.appendChild(option);
+                });
+            }
         } else {
             subcategoryContainer.classList.add('hidden');
             activationContainer.classList.add('hidden');
@@ -240,6 +274,7 @@ export class SubmissionFormManager {
             const formData = {
                 title: document.getElementById('submitTitle').value,
                 description: document.getElementById('submitDescription').value,
+                author: document.getElementById('submitAuthor').value,
                 category: document.getElementById('submitCategory').value,
                 subcategory: document.getElementById('submitSubcategory').value,
                 labels: Array.from(this.selectedLabels),
