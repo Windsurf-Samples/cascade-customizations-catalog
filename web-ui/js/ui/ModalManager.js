@@ -108,9 +108,10 @@ export class ModalManager {
         const labelsContainer = document.getElementById('modalLabels');
         if (labelsContainer) {
             const labels = customization.labels || [];
-            labelsContainer.innerHTML = labels.map(label => 
-                `<span class="tag ${ColorUtils.getLabelColorClass(label)}">${label}</span>`
-            ).join('');
+            labelsContainer.innerHTML = labels.map(label => {
+                const colors = ColorUtils.getLabelColors(label);
+                return `<span class="tag" style="background-color: ${colors.bg}; color: ${colors.text}; border-color: ${colors.border};">${label}</span>`;
+            }).join('');
         }
     }
     
