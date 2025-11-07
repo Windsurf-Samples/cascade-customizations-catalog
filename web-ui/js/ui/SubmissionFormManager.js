@@ -266,33 +266,52 @@ export class SubmissionFormManager {
     createPullRequest(formData) {
         const isRule = formData.category === 'Rule';
         const typeFolder = isRule ? 'rules' : 'workflows';
-        const subcategoryPath = isRule ? `${formData.subcategory}/` : '';
+        const subcategoryPath = isRule ? `${formData.subcategory}/` : `${formData.subcategory}/`;
         
         const filename = formData.title.toLowerCase()
             .replace(/[^a-z0-9]+/g, '-')
             .replace(/^-|-$/g, '') + '.md';
         
-        const filePath = `.windsurf/${typeFolder}/${subcategoryPath}${filename}`;
+        const filePath = `docs/${typeFolder}/${subcategoryPath}${filename}`;
         
-        let fileContent = '---\n';
-        fileContent += `title: "${formData.title}"\n`;
-        fileContent += `description: "${formData.description}"\n`;
-        fileContent += `category: "${formData.subcategory || 'general'}"\n`;
-        fileContent += `labels: [${formData.labels.map(l => `"${l}"`).join(', ')}]\n`;
-        if (formData.activation) {
-            fileContent += `activation: "${formData.activation}"\n`;
-        }
-        fileContent += `author: "Community Contribution"\n`;
-        fileContent += `modified: "${new Date().toISOString().split('T')[0]}"\n`;
-        fileContent += '---\n\n';
-        fileContent += formData.content;
+        let fileContent = '';
         
-        if (formData.instructions) {
-            fileContent += '\n\n## Usage Instructions\n\n' + formData.instructions;
-        }
-        
-        if (formData.examples) {
-            fileContent += '\n\n## Usage Examples\n\n' + formData.examples;
+        if (isRule) {
+            fileContent = '---\n';
+            fileContent += `labels: ${formData.labels.join(', ')}\n`;
+            fileContent += `author: Community Contribution\n`;
+            fileContent += `modified: ${new Date().toISOString().split('T')[0]}\n`;
+            if (formData.activation) {
+                fileContent += `trigger: ${formData.activation}\n`;
+            }
+            fileContent += '---\n\n';
+            
+            fileContent += `# ${formData.title}\n\n`;
+            
+            fileContent += `## Description\n\n`;
+            fileContent += `${formData.description}\n\n`;
+            
+            fileContent += formData.content;
+            
+            if (formData.instructions) {
+                fileContent += '\n\n## Usage Instructions\n\n' + formData.instructions;
+            }
+            if (formData.examples) {
+                fileContent += '\n\n## Usage Examples\n\n' + formData.examples;
+            }
+        } else {
+            fileContent = '---\n';
+            fileContent += `description: ${formData.description}\n`;
+            fileContent += '---\n\n';
+            
+            fileContent += formData.content;
+            
+            if (formData.instructions) {
+                fileContent += '\n\n## Usage Instructions\n\n' + formData.instructions;
+            }
+            if (formData.examples) {
+                fileContent += '\n\n## Usage Examples\n\n' + formData.examples;
+            }
         }
         
         const encodedPath = encodeURIComponent(filePath);

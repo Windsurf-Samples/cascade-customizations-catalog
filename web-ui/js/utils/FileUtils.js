@@ -46,41 +46,71 @@ export class FileUtils {
     }
     
     static stripMetadata(content, type = null) {
-        let cleaned = content;
+        if (!type) {
+            let cleaned = content.replace(/^---[\s\S]*?---\n/, '');
+            cleaned = cleaned.replace(/<!--[\s\S]*?-->/g, '');
+            return cleaned.trim();
+        }
         
         const yamlMatch = content.match(/^---\n([\s\S]*?)\n---\n/);
-        if (yamlMatch && type) {
-            const yamlContent = yamlMatch[1];
-            const lines = yamlContent.split('\n');
-            
+        if (!yamlMatch) {
+            return content.trim();
+        }
+        
+        const yamlContent = yamlMatch[1];
+        const remainingContent = content.substring(yamlMatch[0].length);
+        
+        if (type === 'rules') {
             let trigger = '';
-            let description = '';
-            
+            const lines = yamlContent.split('\n');
             for (const line of lines) {
                 if (line.startsWith('trigger:')) {
                     trigger = line;
-                } else if (line.startsWith('description:')) {
-                    description = line;
+                    break;
+                }
+            }
+            
+            let description = '';
+            const bodyLines = remainingContent.split('\n');
+            for (const line of bodyLines) {
+                const trimmed = line.trim();
+                if (trimmed && !trimmed.startsWith('#') && !trimmed.startsWith('```')) {
+                    description = trimmed;
+                    break;
                 }
             }
             
             let minimalYaml = '---\n';
-            if (type === 'rules' && trigger) {
+            if (trigger) {
                 minimalYaml += trigger + '\n';
             }
+            if (description) {
+                minimalYaml += `description: ${description}\n`;
+            }
+            minimalYaml += '---\n';
+            
+            return (minimalYaml + remainingContent).trim();
+            
+        } else if (type === 'workflows') {
+            let description = '';
+            const lines = yamlContent.split('\n');
+            for (const line of lines) {
+                if (line.startsWith('description:')) {
+                    description = line;
+                    break;
+                }
+            }
+            
+            let minimalYaml = '---\n';
             if (description) {
                 minimalYaml += description + '\n';
             }
             minimalYaml += '---\n';
             
-            cleaned = content.replace(/^---[\s\S]*?---\n/, minimalYaml);
-        } else {
-            cleaned = cleaned.replace(/^---[\s\S]*?---\n/, '');
+            return (minimalYaml + remainingContent).trim();
         }
         
-        cleaned = cleaned.replace(/<!--[\s\S]*?-->/g, '');
-        
-        return cleaned;
+        return content.trim();
     }
 
     static showButtonFeedback(buttonElement, successText = 'Success!', duration = 2000) {
