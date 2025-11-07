@@ -3,7 +3,7 @@ trigger: model_decision
 description: Apply React best practices when working with React components and hooks
 labels: react, javascript, frontend, framework
 author: Windsurf Team
-modified: 2025-11-07
+modified: 2025-11-05
 ---
 
 # React Best Practices

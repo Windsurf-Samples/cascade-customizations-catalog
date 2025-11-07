@@ -1,6 +1,6 @@
-import { MetadataExtractor } from './MetadataExtractor.js?v=final';
-import { DateUtils } from '../utils/DateUtils.js?v=final';
-import { DirectoryScanner } from '../utils/DirectoryScanner.js?v=dynamic';
+import { MetadataExtractor } from './MetadataExtractor.js?v=20251107';
+import { DateUtils } from '../utils/DateUtils.js?v=20251107';
+import { DirectoryScanner } from '../utils/DirectoryScanner.js?v=20251107';
 
 /**
  * Handles data loading and processing with environment-aware path resolution

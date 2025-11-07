@@ -1,6 +1,13 @@
 ---
 description: Complete development environment setup workflow for new team members or fresh machines
+labels: setup, onboarding, development, environment, workflow
+author: Windsurf Team
+modified: 2025-11-07
 ---
+
+# Development Environment Setup
+
+## Description
 
 This workflow guides you through setting up a complete development environment from scratch, including essential tools, configurations, and team-specific requirements.
 

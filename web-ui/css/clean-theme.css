@@ -47,35 +47,57 @@ body {
 }
 
 /* Buttons */
-.btn-primary {
-    background: var(--blue-600);
-    color: var(--white);
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius);
-    border: none;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.2s;
+.btn-primary,
+button.bg-blue-600,
+button.bg-blue-500 {
+    background: var(--blue-600) !important;
+    color: white !important;
+    padding: 0.625rem 1.5rem !important;
+    border-radius: 8px !important;
+    border: none !important;
+    font-weight: 600 !important;
+    font-size: 0.9375rem !important;
+    transition: all 0.2s ease !important;
+    box-shadow: var(--shadow-sm) !important;
+    cursor: pointer !important;
 }
 
-.btn-primary:hover {
-    background: var(--blue-700);
+.btn-primary:hover,
+button.bg-blue-600:hover,
+button.bg-blue-500:hover {
+    background: var(--blue-700) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: var(--shadow-md) !important;
 }
 
-.btn-secondary {
-    background: var(--white);
-    color: var(--gray-700);
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius);
-    border: 1px solid var(--gray-300);
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
+.btn-primary:active,
+button.bg-blue-600:active,
+button.bg-blue-500:active {
+    transform: translateY(0) !important;
 }
 
-.btn-secondary:hover {
-    background: var(--gray-50);
-    border-color: var(--gray-400);
+.btn-secondary,
+button.bg-gray-600,
+button.bg-gray-500 {
+    background: var(--white) !important;
+    color: var(--gray-700) !important;
+    padding: 0.625rem 1.5rem !important;
+    border-radius: 8px !important;
+    border: 1.5px solid var(--gray-300) !important;
+    font-weight: 600 !important;
+    font-size: 0.9375rem !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+    box-shadow: none !important;
+}
+
+.btn-secondary:hover,
+button.bg-gray-600:hover,
+button.bg-gray-500:hover {
+    background: var(--gray-50) !important;
+    border-color: var(--gray-400) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: var(--shadow-sm) !important;
 }
 
 /* Forms */
