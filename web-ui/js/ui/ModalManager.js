@@ -69,9 +69,18 @@ export class ModalManager {
         const modified = document.getElementById('modalModified');
         
         if (title) title.textContent = customization.title;
-        if (category) category.textContent = customization.category;
-        if (author) author.textContent = `by ${customization.author}`;
-        if (modified) modified.textContent = customization.modified;
+        if (category) {
+            const categorySpan = category.querySelector('span');
+            if (categorySpan) categorySpan.textContent = customization.category;
+        }
+        if (author) {
+            const authorSpan = author.querySelector('span');
+            if (authorSpan) authorSpan.textContent = customization.author || 'Unknown';
+        }
+        if (modified) {
+            const modifiedSpan = modified.querySelector('span');
+            if (modifiedSpan) modifiedSpan.textContent = customization.modified || 'Unknown';
+        }
         
         // Update type badge
         const typeBadge = document.getElementById('modalType');

@@ -276,17 +276,48 @@ export class SubmissionFormManager {
             ? `customizations/rules/${subcategoryPath}${filename}`
             : `customizations/workflows/${subcategoryPath}${filename}`;
         
+        // Check if content already has YAML frontmatter and extract/merge it
+        let existingFrontmatter = {};
+        let contentWithoutFrontmatter = formData.content || '';
+        
+        if (contentWithoutFrontmatter.trim().startsWith('---')) {
+            const frontmatterMatch = contentWithoutFrontmatter.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+            if (frontmatterMatch) {
+                const frontmatterText = frontmatterMatch[1];
+                contentWithoutFrontmatter = frontmatterMatch[2];
+                
+                // Parse existing frontmatter
+                frontmatterText.split('\n').forEach(line => {
+                    const colonIndex = line.indexOf(':');
+                    if (colonIndex > 0) {
+                        const key = line.substring(0, colonIndex).trim();
+                        const value = line.substring(colonIndex + 1).trim();
+                        existingFrontmatter[key] = value;
+                    }
+                });
+            }
+        }
+        
         let fileContent = '';
         
         if (isRule) {
             // Generate YAML frontmatter with correct order and format
             fileContent = '---\n';
-            if (formData.activation) {
-                fileContent += `trigger: ${formData.activation}\n`;
+            
+            // Trigger: prefer form activation, then existing
+            const trigger = formData.activation || existingFrontmatter.trigger;
+            if (trigger) {
+                fileContent += `trigger: ${trigger}\n`;
             }
+            
+            // Globs: from existing frontmatter if present
+            if (existingFrontmatter.globs) {
+                fileContent += `globs: ${existingFrontmatter.globs}\n`;
+            }
+            
             fileContent += `description: ${formData.description}\n`;
             fileContent += `labels: ${formData.labels.join(', ')}\n`;
-            fileContent += `author: Community Contribution\n`;
+            fileContent += `author: ${formData.author}\n`;
             fileContent += `modified: ${new Date().toISOString().split('T')[0]}\n`;
             fileContent += '---\n\n';
             
@@ -295,9 +326,9 @@ export class SubmissionFormManager {
             fileContent += `## Description\n\n`;
             fileContent += `${formData.description}\n\n`;
             
-            // Add the main content
-            if (formData.content) {
-                fileContent += formData.content;
+            // Add the main content (without frontmatter)
+            if (contentWithoutFrontmatter.trim()) {
+                fileContent += contentWithoutFrontmatter.trim();
             }
             
             if (formData.instructions) {
@@ -311,7 +342,7 @@ export class SubmissionFormManager {
             fileContent = '---\n';
             fileContent += `description: ${formData.description}\n`;
             fileContent += `labels: ${formData.labels.join(', ')}\n`;
-            fileContent += `author: Community Contribution\n`;
+            fileContent += `author: ${formData.author}\n`;
             fileContent += `modified: ${new Date().toISOString().split('T')[0]}\n`;
             fileContent += '---\n\n';
             
@@ -320,9 +351,9 @@ export class SubmissionFormManager {
             fileContent += `## Description\n\n`;
             fileContent += `${formData.description}\n\n`;
             
-            // Add the main content
-            if (formData.content) {
-                fileContent += formData.content;
+            // Add the main content (without frontmatter)
+            if (contentWithoutFrontmatter.trim()) {
+                fileContent += contentWithoutFrontmatter.trim();
             }
             
             if (formData.instructions) {

@@ -93,7 +93,7 @@ export class DirectoryScanner {
                     "secure-coding"
                 ],
                 "style": [
-                    "frontend-rules"
+                    "style"
                 ]
             },
             "workflows": {
