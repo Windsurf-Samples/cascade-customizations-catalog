@@ -126,9 +126,9 @@ export class DataLoader {
                 metadata = MetadataExtractor.extractMetadataFromYAML(content);
             }
             
-            // Fallback label extraction if no metadata labels found
-            if (!metadata.labels || metadata.labels.length === 0) {
-                metadata.labels = MetadataExtractor.extractLabelsFromContent(content);
+            // Only use YAML labels - no automatic content extraction
+            if (!metadata.labels) {
+                metadata.labels = [];
             }
             
             // Extract description from content

@@ -1,4 +1,4 @@
-import { ColorUtils } from '../utils/ColorUtils.js?v=20250815-rawfix';
+import { ColorUtils } from '../utils/ColorUtils.js?v=20251107-colors';
 import { FileUtils } from '../utils/FileUtils.js?v=20250815-rawfix';
 
 /**
