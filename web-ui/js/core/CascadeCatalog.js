@@ -3,6 +3,7 @@ import { FilterManager } from '../ui/FilterManager.js?v=20250815-rawfix';
 import { ViewRenderer } from '../ui/ViewRenderer.js?v=20250815-rawfix';
 import { ModalManager } from '../ui/ModalManager.js?v=20250911-yamlfix';
 import { SidebarManager } from '../ui/SidebarManager.js?v=20250815-rawfix';
+import { SubmissionFormManager } from '../ui/SubmissionFormManager.js?v=20250815-submission';
 
 /**
  * Main application class - orchestrates all components
@@ -19,6 +20,7 @@ export class CascadeCatalog {
         this.viewRenderer = new ViewRenderer();
         this.modalManager = new ModalManager();
         this.sidebarManager = new SidebarManager();
+        this.submissionFormManager = new SubmissionFormManager();
         
         // Set up component callbacks
         this.setupComponentCallbacks();

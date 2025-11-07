@@ -2,10 +2,14 @@
  * File download and copy utilities
  */
 export class FileUtils {
-    static async downloadFile(url, filename) {
+    static async downloadFile(url, filename, processContent = null) {
         try {
             const response = await fetch(url);
-            const content = await response.text();
+            let content = await response.text();
+            
+            if (processContent && typeof processContent === 'function') {
+                content = processContent(content);
+            }
             
             const blob = new Blob([content], { type: 'text/markdown' });
             const downloadUrl = URL.createObjectURL(blob);
@@ -24,10 +28,14 @@ export class FileUtils {
         }
     }
     
-    static async copyToClipboard(url) {
+    static async copyToClipboard(url, processContent = null) {
         try {
             const response = await fetch(url);
-            const content = await response.text();
+            let content = await response.text();
+            
+            if (processContent && typeof processContent === 'function') {
+                content = processContent(content);
+            }
             
             await navigator.clipboard.writeText(content);
             return true;
@@ -37,6 +45,16 @@ export class FileUtils {
         }
     }
     
+    static stripMetadata(content) {
+        let cleaned = content;
+        
+        cleaned = cleaned.replace(/^---[\s\S]*?---\n/, '');
+        
+        cleaned = cleaned.replace(/<!--[\s\S]*?-->/g, '');
+        
+        return cleaned;
+    }
+
     static showButtonFeedback(buttonElement, successText = 'Success!', duration = 2000) {
         const originalText = buttonElement.innerHTML;
         const originalClasses = Array.from(buttonElement.classList);

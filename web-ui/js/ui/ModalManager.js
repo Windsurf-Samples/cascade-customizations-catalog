@@ -136,11 +136,7 @@ export class ModalManager {
             
             let content = await response.text();
             
-            // Remove YAML frontmatter for display
-            content = content.replace(/^---[\s\S]*?---\n/, '');
-            
-            // Remove HTML comments for display
-            content = content.replace(/<!--[\s\S]*?-->/g, '');
+            content = FileUtils.stripMetadata(content);
             
             // Determine if we're dealing with Jekyll-rendered HTML (GitHub Pages)
             const isHtmlDoc = /\.html(\?|$)/i.test(customization.path);
@@ -265,7 +261,8 @@ export class ModalManager {
         try {
             await FileUtils.downloadFile(
                 this.currentCustomization.windsurfPath, 
-                this.currentCustomization.filename
+                this.currentCustomization.filename,
+                FileUtils.stripMetadata
             );
         } catch (error) {
             alert(error.message);
@@ -292,7 +289,10 @@ export class ModalManager {
         if (!this.currentCustomization) return;
         
         try {
-            await FileUtils.copyToClipboard(this.currentCustomization.windsurfPath);
+            await FileUtils.copyToClipboard(
+                this.currentCustomization.windsurfPath,
+                FileUtils.stripMetadata
+            );
             
             const btn = document.getElementById('copyBtn');
             if (btn) {
