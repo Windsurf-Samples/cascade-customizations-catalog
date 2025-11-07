@@ -115,15 +115,12 @@ Use standardized labels for consistent categorization. Labels help users discove
 1. Fork the repository
 2. Create a new branch for your contribution
 3. Add your customization file to the appropriate directory (e.g., `customizations/rules/style/my-rule.md`)
-4. Add the filename (without `.md` extension) to `web-ui/js/utils/DirectoryScanner.js` in the `getCommonFilenames()` method
+4. Run `node scripts/update-directory-scanner.js` to automatically update the file list
 5. Ensure proper labeling and categorization
 6. Test your customization locally
 7. Submit a pull request
 
-**Example:** If you add `customizations/rules/style/my-new-rule.md`, update DirectoryScanner.js:
-```javascript
-'style': ['frontend-format', 'code-review-checklist', 'coding-best-practices', 'my-new-rule']
-```
+**Note:** The DirectoryScanner is automatically updated! Just run the script after adding your file, or the GitHub Action will do it automatically when you push.
 
 ### 8. Pull Request Requirements
 

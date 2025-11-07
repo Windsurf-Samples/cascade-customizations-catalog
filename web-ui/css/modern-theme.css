@@ -1,19 +1,19 @@
-/* Modern Dark Theme - Devin-inspired */
+/* Clean Professional Theme - Excellent Readability */
 
 :root {
-    --bg-primary: #0a0a0f;
-    --bg-secondary: #13131a;
-    --bg-tertiary: #1a1a24;
-    --bg-card: #1e1e2e;
-    --accent-primary: #6366f1;
-    --accent-secondary: #8b5cf6;
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-tertiary: #f1f5f9;
+    --bg-card: #ffffff;
+    --accent-primary: #3b82f6;
+    --accent-secondary: #2563eb;
     --accent-success: #10b981;
     --accent-warning: #f59e0b;
-    --text-primary: #e5e7eb;
-    --text-secondary: #9ca3af;
-    --text-tertiary: #6b7280;
-    --border-color: #2d2d3a;
-    --border-hover: #3d3d4a;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-tertiary: #64748b;
+    --border-color: #e2e8f0;
+    --border-hover: #cbd5e1;
 }
 
 * {
@@ -22,8 +22,8 @@
 }
 
 *::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
 }
 
 *::-webkit-scrollbar-track {
@@ -32,7 +32,7 @@
 
 *::-webkit-scrollbar-thumb {
     background: var(--border-color);
-    border-radius: 4px;
+    border-radius: 5px;
 }
 
 *::-webkit-scrollbar-thumb:hover {
@@ -40,7 +40,7 @@
 }
 
 body {
-    background: var(--bg-primary);
+    background: var(--bg-secondary);
     color: var(--text-primary);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
 }
@@ -60,14 +60,8 @@ body {
     right: 0;
     bottom: 0;
     background: 
-        radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
-    animation: pulse 8s ease-in-out infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.8; }
+        radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(37, 99, 235, 0.05) 0%, transparent 50%);
 }
 
 .hero-content {
@@ -75,31 +69,19 @@ body {
     z-index: 1;
 }
 
-/* Glass Card Effect */
+/* Clean Card Design */
 .glass-card {
-    background: rgba(30, 30, 46, 0.5);
-    backdrop-filter: blur(16px);
+    background: var(--bg-card);
     border: 1px solid var(--border-color);
-    border-radius: 16px;
+    border-radius: 12px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: hidden;
-}
-
-.glass-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.3), transparent);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
 }
 
 .glass-card:hover {
-    background: rgba(30, 30, 46, 0.7);
     border-color: var(--accent-primary);
-    transform: translateY(-4px) scale(1.01);
-    box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.15), 0 8px 10px -6px rgba(59, 130, 246, 0.1);
 }
 
 /* Buttons */
@@ -144,42 +126,44 @@ body {
     padding: 0.375rem 0.75rem;
     margin: 0.25rem;
     border-radius: 6px;
-    background: var(--bg-card);
+    background: var(--bg-tertiary);
     border: 1px solid var(--border-color);
-    color: var(--text-secondary);
+    color: var(--text-primary);
     font-weight: 500;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
 }
 
 .tag:hover {
-    background: var(--bg-tertiary);
-    border-color: var(--border-hover);
-    color: var(--text-primary);
+    background: var(--bg-card);
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
     transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
 }
 
 .tag.active {
-    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    background: var(--accent-primary);
     border-color: var(--accent-primary);
     color: white;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 /* Search Input */
 .search-input {
     background: var(--bg-card);
-    border: 1px solid var(--border-color);
+    border: 2px solid var(--border-color);
     color: var(--text-primary);
     padding: 0.75rem 1rem;
     border-radius: 8px;
     transition: all 0.3s ease;
+    font-size: 0.9375rem;
 }
 
 .search-input:focus {
     outline: none;
     border-color: var(--accent-primary);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .search-input::placeholder {
@@ -190,7 +174,7 @@ body {
 .filter-btn {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
-    color: var(--text-secondary);
+    color: var(--text-primary);
     padding: 0.5rem 1rem;
     border-radius: 8px;
     font-weight: 500;
@@ -200,44 +184,45 @@ body {
 
 .filter-btn:hover {
     background: var(--bg-tertiary);
-    border-color: var(--border-hover);
-    color: var(--text-primary);
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
 }
 
 .filter-btn.active {
-    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    background: var(--accent-primary);
     border-color: var(--accent-primary);
     color: white;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 /* Modal */
 .modal {
-    background: rgba(10, 10, 15, 0.8);
+    background: rgba(15, 23, 42, 0.75);
     backdrop-filter: blur(8px);
 }
 
 .modal-content {
-    background: var(--bg-secondary);
+    background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: 16px;
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
 }
 
 /* Code Blocks */
 pre {
-    background: var(--bg-secondary) !important;
+    background: var(--bg-tertiary) !important;
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 1rem !important;
 }
 
 code {
-    background: var(--bg-card);
+    background: var(--bg-tertiary);
     color: var(--accent-primary);
     padding: 0.2rem 0.4rem;
     border-radius: 4px;
     font-size: 0.875rem;
+    font-weight: 500;
 }
 
 /* Animations */

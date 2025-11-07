@@ -81,21 +81,20 @@ export class DirectoryScanner {
     
     async getCommonFilenames(type, subdir) {
         const knownFiles = {
-            'rules': {
-                'framework': ['react', 'frontend_guidelines'],
-                'language': ['java', 'typescript'],
-                'security': ['secure-coding'],
-                'style': ['frontend-format', 'code-review-checklist', 'coding-best-practices']
+            "rules": {
+                "framework": ["react"],
+                "language": ["java", "typescript"],
+                "security": ["secure-coding"]
             },
-            'workflows': {
-                'maintenance': ['debugging-issues'],
-                'setup': ['dev-environment-setup', 'node-project-setup']
+            "workflows": {
+                "maintenance": ["debugging-issues"],
+                "setup": ["dev-environment-setup", "node-project-setup"]
             }
         };
         
         return knownFiles[type]?.[subdir] || [];
     }
-    
+         
     generateTitle(filename) {
         return filename
             .replace(/[-_]/g, ' ')
