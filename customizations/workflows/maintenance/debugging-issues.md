@@ -1,6 +1,6 @@
 ---
 description: Systematic debugging workflow for identifying and resolving software issues
-labels: debugging, maintenance, troubleshooting, workflow
+labels: debugging, workflow
 author: Windsurf Team
 modified: 2025-11-07
 ---

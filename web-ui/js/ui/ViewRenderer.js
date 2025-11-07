@@ -75,9 +75,10 @@ export class ViewRenderer {
                     
                     <div class="mb-3">
                         <div class="flex flex-wrap gap-1.5">
-                            ${Array.isArray(customization.labels) ? customization.labels.slice(0, 3).map(label => 
-                                `<span class="tag ${ColorUtils.getLabelColorClass(label)}">${label}</span>`
-                            ).join('') : ''}
+                            ${Array.isArray(customization.labels) ? customization.labels.slice(0, 3).map(label => {
+                                const colors = ColorUtils.getLabelColors(label);
+                                return `<span class="tag" style="background-color: ${colors.bg}; color: ${colors.text}; border-color: ${colors.border};">${label}</span>`;
+                            }).join('') : ''}
                             ${Array.isArray(customization.labels) && customization.labels.length > 3 ? `<span class="tag bg-gray-200 text-gray-600 border-gray-300">+${customization.labels.length - 3} more</span>` : ''}
                         </div>
                     </div>
@@ -120,9 +121,10 @@ export class ViewRenderer {
                             <p class="text-gray-600 text-sm mb-3 line-clamp-2">${customization.description}</p>
                             
                             <div class="flex flex-wrap gap-1.5 mb-2">
-                                ${Array.isArray(customization.labels) ? customization.labels.slice(0, 5).map(label => 
-                                    `<span class="tag ${ColorUtils.getLabelColorClass(label)}">${label}</span>`
-                                ).join('') : ''}
+                                ${Array.isArray(customization.labels) ? customization.labels.slice(0, 5).map(label => {
+                                    const colors = ColorUtils.getLabelColors(label);
+                                    return `<span class="tag" style="background-color: ${colors.bg}; color: ${colors.text}; border-color: ${colors.border};">${label}</span>`;
+                                }).join('') : ''}
                                 ${Array.isArray(customization.labels) && customization.labels.length > 5 ? `<span class="tag bg-gray-200 text-gray-600 border-gray-300">+${customization.labels.length - 5} more</span>` : ''}
                             </div>
                         </div>

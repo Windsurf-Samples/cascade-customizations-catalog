@@ -2,7 +2,7 @@
 trigger: glob
 globs: "*.java"
 description: Java coding guidelines and best practices
-labels: java, language, backend, best-practices
+labels: java, backend
 author: Windsurf Team
 modified: 2025-11-07
 ---
