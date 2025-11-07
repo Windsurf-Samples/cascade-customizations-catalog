@@ -77,7 +77,7 @@ export class ViewRenderer {
                         <div class="flex flex-wrap gap-1.5">
                             ${Array.isArray(customization.labels) ? customization.labels.slice(0, 3).map(label => {
                                 const colors = ColorUtils.getLabelColors(label);
-                                return `<span class="tag" style="background-color: ${colors.bg}; color: ${colors.text}; border-color: ${colors.border};">${label}</span>`;
+                                return `<span class="tag" style="background-color: ${colors.bg} !important; color: ${colors.text} !important; border-color: ${colors.border} !important;">${label}</span>`;
                             }).join('') : ''}
                             ${Array.isArray(customization.labels) && customization.labels.length > 3 ? `<span class="tag bg-gray-200 text-gray-600 border-gray-300">+${customization.labels.length - 3} more</span>` : ''}
                         </div>
@@ -123,7 +123,7 @@ export class ViewRenderer {
                             <div class="flex flex-wrap gap-1.5 mb-2">
                                 ${Array.isArray(customization.labels) ? customization.labels.slice(0, 5).map(label => {
                                     const colors = ColorUtils.getLabelColors(label);
-                                    return `<span class="tag" style="background-color: ${colors.bg}; color: ${colors.text}; border-color: ${colors.border};">${label}</span>`;
+                                    return `<span class="tag" style="background-color: ${colors.bg} !important; color: ${colors.text} !important; border-color: ${colors.border} !important;">${label}</span>`;
                                 }).join('') : ''}
                                 ${Array.isArray(customization.labels) && customization.labels.length > 5 ? `<span class="tag bg-gray-200 text-gray-600 border-gray-300">+${customization.labels.length - 5} more</span>` : ''}
                             </div>

@@ -110,7 +110,7 @@ export class ModalManager {
             const labels = customization.labels || [];
             labelsContainer.innerHTML = labels.map(label => {
                 const colors = ColorUtils.getLabelColors(label);
-                return `<span class="tag" style="background-color: ${colors.bg}; color: ${colors.text}; border-color: ${colors.border};">${label}</span>`;
+                return `<span class="tag" style="background-color: ${colors.bg} !important; color: ${colors.text} !important; border-color: ${colors.border} !important;">${label}</span>`;
             }).join('');
         }
     }
