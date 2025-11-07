@@ -324,9 +324,6 @@
                     <button id="filterWorkflows" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all">
                         Workflows
                     </button>
-                    <button id="filterBundles" class="filter-btn px-4 py-2 rounded-lg font-medium transition-all">
-                        Bundles
-                    </button>
                 </div>
                 
                 <!-- Filter Toggle -->
@@ -375,13 +372,6 @@
                         <div class="text-3xl font-bold text-slate-700" id="totalWorkflows">0</div>
                     </div>
                     <div class="text-sm font-medium text-slate-500">Workflows</div>
-                </div>
-                <div class="stat-card">
-                    <div class="flex items-center justify-center mb-1">
-                        <i class="fas fa-box text-orange-500 text-lg mr-2"></i>
-                        <div class="text-3xl font-bold text-slate-700" id="totalBundles">0</div>
-                    </div>
-                    <div class="text-sm font-medium text-slate-500">Bundles</div>
                 </div>
                 <div class="stat-card">
                     <div class="flex items-center justify-center mb-1">
@@ -513,8 +503,16 @@
                 </button>
             </div>
             <div id="modalScrollArea" class="p-6 overflow-y-auto flex-1 min-h-0">
-                <div id="modalContent" class="prose max-w-none">
-                    <!-- Content will be populated by JavaScript -->
+                <div id="modalRawSection" class="rounded-lg border border-gray-200 bg-white shadow-sm">
+                    <div id="modalRawHeader" class="flex items-center justify-between px-3 py-2 border-b bg-gray-50 rounded-t-lg">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-file-code text-gray-500"></i>
+                            <h3 class="text-sm font-medium text-gray-700">Raw Markdown Content</h3>
+                        </div>
+                    </div>
+                    <div class="p-3">
+                        <pre id="modalRawPre" class="overflow-auto rounded-md bg-gray-50 border border-gray-200" style="max-height: 60vh;"><code id="modalRawCode" class="language-markdown text-xs font-mono text-gray-800">Loading...</code></pre>
+                    </div>
                 </div>
             </div>
             <div class="flex justify-between items-center p-6 border-t bg-gray-50">
@@ -687,7 +685,7 @@
             <div class="flex justify-between items-center p-6 border-t bg-gray-50">
                 <p class="text-sm text-gray-600">
                     <i class="fas fa-info-circle mr-1"></i>
-                    Your submission will create a GitHub issue for review
+                    Your submission will open GitHub's file creation interface to create a PR
                 </p>
                 <div class="flex gap-2">
                     <button type="button" id="cancelSubmission" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-all">

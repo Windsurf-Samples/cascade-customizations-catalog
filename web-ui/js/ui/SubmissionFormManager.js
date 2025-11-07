@@ -249,50 +249,59 @@ export class SubmissionFormManager {
                 examples: document.getElementById('submitExamples').value
             };
             
-            this.createGitHubIssue(formData);
+            this.createPullRequest(formData);
             
-            alert('Opening GitHub issue creation page. Please review and submit the issue.');
+            alert('Opening GitHub to create your pull request. Please review and submit the PR.');
             this.closeModal();
             
         } catch (error) {
             console.error('Submission failed:', error);
-            alert('Submission failed: ' + error.message + '\n\nPlease try again or submit directly via GitHub Issues.');
+            alert('Submission failed: ' + error.message + '\n\nPlease try again or submit manually via GitHub.');
         } finally {
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalText;
         }
     }
     
-    createGitHubIssue(formData) {
-        const issueTitle = encodeURIComponent(`[Submission] ${formData.title}`);
+    createPullRequest(formData) {
+        const isRule = formData.category === 'Rule';
+        const typeFolder = isRule ? 'rules' : 'workflows';
+        const subcategoryPath = isRule ? `${formData.subcategory}/` : '';
         
-        let issueBody = `## Customization Details\n\n`;
-        issueBody += `**Title:** ${formData.title}\n\n`;
-        issueBody += `**Description:** ${formData.description}\n\n`;
-        issueBody += `**Category:** ${formData.category}\n\n`;
+        const filename = formData.title.toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-|-$/g, '') + '.md';
         
-        if (formData.subcategory) {
-            issueBody += `**Subcategory:** ${formData.subcategory}\n\n`;
-        }
+        const filePath = `.windsurf/${typeFolder}/${subcategoryPath}${filename}`;
         
+        let fileContent = '---\n';
+        fileContent += `title: "${formData.title}"\n`;
+        fileContent += `description: "${formData.description}"\n`;
+        fileContent += `category: "${formData.subcategory || 'general'}"\n`;
+        fileContent += `labels: [${formData.labels.map(l => `"${l}"`).join(', ')}]\n`;
         if (formData.activation) {
-            issueBody += `**Activation Mode:** ${formData.activation}\n\n`;
+            fileContent += `activation: "${formData.activation}"\n`;
         }
-        
-        issueBody += `**Labels:** ${formData.labels.join(', ')}\n\n`;
-        issueBody += `## Content\n\n\`\`\`markdown\n${formData.content}\n\`\`\`\n\n`;
+        fileContent += `author: "Community Contribution"\n`;
+        fileContent += `modified: "${new Date().toISOString().split('T')[0]}"\n`;
+        fileContent += '---\n\n';
+        fileContent += formData.content;
         
         if (formData.instructions) {
-            issueBody += `## Usage Instructions\n\n${formData.instructions}\n\n`;
+            fileContent += '\n\n## Usage Instructions\n\n' + formData.instructions;
         }
         
         if (formData.examples) {
-            issueBody += `## Usage Examples\n\n${formData.examples}\n\n`;
+            fileContent += '\n\n## Usage Examples\n\n' + formData.examples;
         }
         
-        const encodedBody = encodeURIComponent(issueBody);
-        const issueUrl = `https://github.com/Windsurf-Samples/cascade-customizations-catalog/issues/new?title=${issueTitle}&body=${encodedBody}`;
+        const encodedPath = encodeURIComponent(filePath);
+        const encodedContent = encodeURIComponent(fileContent);
+        const branchName = encodeURIComponent(`add-${filename.replace('.md', '')}`);
+        const commitMessage = encodeURIComponent(`Add ${formData.title}`);
         
-        window.open(issueUrl, '_blank');
+        const prUrl = `https://github.com/Windsurf-Samples/cascade-customizations-catalog/new/main?filename=${encodedPath}&value=${encodedContent}&message=${commitMessage}`;
+        
+        window.open(prUrl, '_blank');
     }
 }

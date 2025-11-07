@@ -36,20 +36,21 @@ export class ModalManager {
         }
     }
     
-    openModal(customization) {
+    async openModal(customization) {
         this.currentCustomization = customization;
         
         // Update modal content
         this.updateModalHeader(customization);
-        this.updateModalContent(customization);
         this.updateModalActions(customization);
         
         // Show modal
         const modal = document.getElementById('customizationModal');
         if (modal) {
             modal.classList.add('active');
-            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            document.body.style.overflow = 'hidden';
         }
+        
+        await this.populateRawContent(customization);
     }
     
     closeModal() {
@@ -85,10 +86,6 @@ export class ModalManager {
                 typeIcon = 'fas fa-list-ol';
                 badgeClass = 'type-badge--workflows';
                 typeLabel = 'Workflow';
-            } else if (customization.type === 'bundle') {
-                typeIcon = 'fas fa-box';
-                badgeClass = 'type-badge--bundles';
-                typeLabel = 'Bundle';
             }
             
             typeBadge.className = `type-badge ${badgeClass}`;
@@ -108,108 +105,6 @@ export class ModalManager {
         }
     }
     
-    async updateModalContent(customization) {
-        const contentContainer = document.getElementById('modalContent');
-        if (!contentContainer) return;
-        
-        if (customization.type === 'bundle') {
-            await this.displayBundleContent(customization);
-            return;
-        }
-        
-        contentContainer.innerHTML = '<div class="flex justify-center py-8"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>';
-        
-        try {
-            const response = await fetch(customization.path);
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            
-            let content = await response.text();
-            
-            content = FileUtils.stripMetadata(content);
-            
-            // Determine if we're dealing with Jekyll-rendered HTML (GitHub Pages)
-            const isHtmlDoc = /\.html(\?|$)/i.test(customization.path);
-
-            // Use HTML as-is for Jekyll output; convert Markdown locally
-            let htmlContent;
-            if (isHtmlDoc) {
-                htmlContent = content;
-            } else {
-                // Convert markdown to HTML (prefer Marked if available for proper semantics)
-                if (window.marked && typeof window.marked.parse === 'function') {
-                    htmlContent = window.marked.parse(content);
-                } else {
-                    htmlContent = this.markdownToHtml(content);
-                }
-            }
-            contentContainer.innerHTML = htmlContent;
-
-            if (isHtmlDoc) {
-                // Jekyll/rouge often emits <div class="highlight"><pre>...<span> tokens</span></pre></div>.
-                // Normalize to Prism structure for consistent styling and avoid literal span text.
-                this.normalizeRougeBlocksToPrism(contentContainer);
-            } else {
-                // Apply syntax highlighting for locally converted Markdown
-                if (window.Prism && typeof Prism.highlightAll === 'function') {
-                    Prism.highlightAll();
-                }
-            }
-        } catch (error) {
-            console.error('Failed to load content:', error);
-            contentContainer.innerHTML = '<p class="text-red-600">Failed to load content. Please try again.</p>';
-        }
-    }
-
-    async displayBundleContent(customization) {
-        const contentContainer = document.getElementById('modalContent');
-        const bundle = customization.bundle;
-        
-        let bundleHtml = `
-            <div class="bundle-overview">
-                <h3>Bundle Overview</h3>
-                <p>${bundle.description}</p>
-                <div class="bundle-metadata">
-                    <div class="metadata-item">
-                        <strong>Version:</strong> ${bundle.version}
-                    </div>
-                    <div class="metadata-item">
-                        <strong>Team Size:</strong> ${bundle.metadata?.team_size || 'Not specified'}
-                    </div>
-                    <div class="metadata-item">
-                        <strong>Use Cases:</strong> ${bundle.metadata?.use_cases?.join(', ') || 'Not specified'}
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        if (customization.bundleCustomizations && customization.bundleCustomizations.length > 0) {
-            bundleHtml += `
-                <div class="bundle-dependencies">
-                    <h3>Included Customizations</h3>
-                    <div class="dependency-list">
-            `;
-            
-            customization.bundleCustomizations.forEach(dep => {
-                bundleHtml += `
-                    <div class="dependency-item">
-                        <div class="dependency-header">
-                            <span class="dependency-title">${dep.title}</span>
-                            <span class="dependency-type type-badge type-badge--${dep.type}">${dep.type}</span>
-                        </div>
-                        <div class="dependency-description">${dep.description}</div>
-                        <div class="dependency-activation">Activation: ${dep.activation}</div>
-                    </div>
-                `;
-            });
-            
-            bundleHtml += `
-                    </div>
-                </div>
-            `;
-        }
-        
-        contentContainer.innerHTML = bundleHtml;
-    }
     
     updateModalActions(customization) {
         // Update download button filename
@@ -219,38 +114,42 @@ export class ModalManager {
         }
     }
     
+    async populateRawContent(customization) {
+        const codeEl = document.getElementById('modalRawCode');
+        if (!codeEl) return;
+        
+        try {
+            const response = await fetch(customization.windsurfPath + `?v=${Date.now()}`, { cache: 'no-store' });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            
+            let content = await response.text();
+            content = FileUtils.stripMetadata(content);
+            
+            codeEl.textContent = content;
+            
+            if (window.Prism && typeof Prism.highlightElement === 'function') {
+                Prism.highlightElement(codeEl);
+            }
+        } catch (err) {
+            console.warn('Failed to load raw content:', err);
+            codeEl.textContent = 'Unable to load source content.';
+        }
+    }
+    
     async downloadCurrent() {
         if (!this.currentCustomization) return;
         
-        if (this.currentCustomization.type === 'bundle') {
-            await this.downloadBundle(this.currentCustomization);
-            return;
-        }
+        const typeLabel = this.currentCustomization.type === 'rules' ? 'rule' : 'workflow';
+        const filename = `${this.currentCustomization.title} ${typeLabel}.md`;
         
         try {
             await FileUtils.downloadFile(
                 this.currentCustomization.windsurfPath, 
-                this.currentCustomization.filename,
+                filename,
                 FileUtils.stripMetadata
             );
         } catch (error) {
             alert(error.message);
-        }
-    }
-
-    async downloadBundle(customization) {
-        const bundle = customization.bundle;
-        const bundleCustomizations = customization.bundleCustomizations || [];
-        
-        try {
-            await FileUtils.downloadFile(
-                customization.windsurfPath,
-                `${bundle.bundleName}-bundle.yaml`
-            );
-            
-            alert(`Bundle manifest downloaded! This bundle contains ${bundleCustomizations.length} customizations. You can copy individual items by viewing them in the bundle.`);
-        } catch (error) {
-            alert(`Failed to download bundle: ${error.message}`);
         }
     }
     

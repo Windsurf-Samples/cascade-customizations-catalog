@@ -57,10 +57,6 @@ export class ViewRenderer {
             typeIcon = 'fas fa-list-ol';
             typeBadgeClass = 'type-badge--workflows';
             typeLabel = 'Workflow';
-        } else if (customization.type === 'bundle') {
-            typeIcon = 'fas fa-box';
-            typeBadgeClass = 'type-badge--bundles';
-            typeLabel = 'Bundle';
         }
         
         return `
@@ -106,10 +102,6 @@ export class ViewRenderer {
             typeIcon = 'fas fa-list-ol';
             typeBadgeClass = 'type-badge--workflows';
             typeLabel = 'Workflow';
-        } else if (customization.type === 'bundle') {
-            typeIcon = 'fas fa-box';
-            typeBadgeClass = 'type-badge--bundles';
-            typeLabel = 'Bundle';
         }
         
         return `
