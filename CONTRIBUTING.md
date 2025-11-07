@@ -15,19 +15,16 @@ We welcome two types of customizations:
 
 For each customization you contribute, you must provide:
 
-1. **The customization file** in the appropriate `.windsurf/` directory
-2. **Documentation file** in the corresponding `docs/` directory
-3. **Proper categorization** using our standardized labels
+1. **The customization file** in the appropriate `customizations/` directory with proper metadata
+2. **Proper categorization** using our standardized labels
 
 ### 3. File Structure
 
 #### Rules
-- Place rule files in: `windsurf/rules/<category>/<rule-name>.md`
-- Place documentation in: `docs/rules/<category>/<rule-name>.md`
+- Place rule files in: `customizations/rules/<category>/<rule-name>.md`
 
 #### Workflows  
-- Place workflow files in: `windsurf/workflows/<category>/<workflow-name>.md`
-- Place documentation in: `docs/workflows/<category>/<workflow-name>.md`
+- Place workflow files in: `customizations/workflows/<category>/<workflow-name>.md`
 
 ### 4. Categories
 
@@ -47,12 +44,26 @@ You may use these suggested top-level categories for organization:
 - `deployment/` - Deployment workflows
 - `maintenance/` - Maintenance workflows
 
-### 5. Documentation Requirements
+### 5. Metadata Requirements
 
-Each documentation file must include the required YAML frontmatter followed by structured content:
+Each customization file must include YAML frontmatter with metadata:
 
+**For Rules:**
 ```yaml
 ---
+trigger: model_decision|glob|always_on|manual
+globs: "*.ts,*.tsx"  # Only for glob-based rules
+description: Brief description of what this rule does
+labels: [comma, separated, labels]
+author: [Your name/username]
+modified: [YYYY-MM-DD]
+---
+```
+
+**For Workflows:**
+```yaml
+---
+description: Brief description of what this workflow does
 labels: [comma, separated, labels]
 author: [Your name/username]
 modified: [YYYY-MM-DD]
@@ -61,9 +72,9 @@ modified: [YYYY-MM-DD]
 
 Followed by:
 - **H1 Title**: The name of the customization
-- **Description**: What the customization does
-- **Usage**: How and when to use it
-- **Examples**: Practical code examples
+- **Description Section**: What the customization does
+- **Usage Section**: How and when to use it
+- **Examples Section**: Practical code examples
 
 #### Required Sections
 
@@ -85,15 +96,11 @@ Followed by:
 
 #### Labels
 
-Use standardized labels from [`docs/labels.md`](docs/labels.md) for consistent categorization. Labels help users discover your customizations through search and filtering.
-
-#### Documentation Structure
-
-Documentation follows the same organizational structure as the customizations in the `windsurf/` directory. Each customization in the `windsurf/` directory must have a corresponding documentation file in the `docs/` directory with the same relative path and filename.
-
-For example:
-- `windsurf/rules/language/typescript.md` → `docs/rules/language/typescript.md`
-- `windsurf/workflows/setup/node-project.md` → `docs/workflows/setup/node-project.md`
+Use standardized labels for consistent categorization. Labels help users discover your customizations through search and filtering. Common labels include:
+- **Languages**: javascript, typescript, python, java, etc.
+- **Frameworks**: react, vue, angular, nextjs, etc.
+- **Areas**: frontend, backend, security, testing, etc.
+- **Activation**: always-on, model-decision, glob-based, manual
 
 ### 6. Quality Guidelines
 
@@ -107,20 +114,25 @@ For example:
 
 1. Fork the repository
 2. Create a new branch for your contribution
-3. Add both the customization file and its documentation
-4. Ensure proper labeling and categorization
-5. Test your customization
-6. Submit a pull request
+3. Add your customization file to the appropriate directory (e.g., `customizations/rules/style/my-rule.md`)
+4. Add the filename (without `.md` extension) to `web-ui/js/utils/DirectoryScanner.js` in the `getCommonFilenames()` method
+5. Ensure proper labeling and categorization
+6. Test your customization locally
+7. Submit a pull request
+
+**Example:** If you add `customizations/rules/style/my-new-rule.md`, update DirectoryScanner.js:
+```javascript
+'style': ['frontend-format', 'code-review-checklist', 'coding-best-practices', 'my-new-rule']
+```
 
 ### 8. Pull Request Requirements
 
 Your PR must include:
-- [ ] Customization file in correct `windsurf/` location
-- [ ] Documentation file in corresponding `docs/` location
-- [ ] Proper YAML frontmatter in documentation
+- [ ] Customization file in correct `customizations/rules/` or `customizations/workflows/` location
+- [ ] Proper YAML frontmatter with all required metadata
 - [ ] Clear description of the customization's purpose
-- [ ] Usage examples
-- [ ] Appropriate labels from `docs/labels.md`
+- [ ] Usage instructions and examples in the file
+- [ ] Appropriate labels for categorization
 
 ### 9. Review Process
 

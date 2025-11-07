@@ -63,7 +63,7 @@ Place the downloaded customization files in your project's `.windsurf` directory
 mkdir -p /path/to/your/project/.windsurf/rules
 mkdir -p /path/to/your/project/.windsurf/workflows
 
-# Copy the downloaded files
+# Copy the downloaded files to the appropriate directory
 cp "Downloaded Rule.md" /path/to/your/project/.windsurf/rules/
 cp "Downloaded Workflow.md" /path/to/your/project/.windsurf/workflows/
 ```

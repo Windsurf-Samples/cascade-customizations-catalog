@@ -1,12 +1,19 @@
 ---
 trigger: glob
-
 globs: "*.java"
+description: Java coding guidelines and best practices
+labels: java, language, backend, best-practices
+author: Windsurf Team
+modified: 2025-11-07
 ---
 
-Java Coding Guidelines
+# Java Coding Guidelines
 
-Code Style and Formatting
+## Description
+
+Java coding guidelines and best practices for clean, maintainable code.
+
+## Code Style and Formatting
 Consistent Indentation: Use 4 spaces for indentation rather than tabs.
 
 Line Length: Limit lines to 100-120 characters maximum.

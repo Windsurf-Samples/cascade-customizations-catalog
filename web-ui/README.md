@@ -79,9 +79,9 @@ bundle exec jekyll serve
 
 ## Data Loading
 
-The web UI automatically loads customizations from the `docs/` directory:
+The web UI automatically loads customizations from the `customizations/` directory:
 
-1. **Primary method**: Fetches markdown files directly from the docs folder
+1. **Primary method**: Fetches markdown files directly from the customizations folder
 2. **Fallback method**: Uses sample data if files can't be loaded
 3. **Parsing**: Extracts YAML frontmatter and markdown content
 4. **Organization**: Categorizes by directory structure
@@ -89,8 +89,8 @@ The web UI automatically loads customizations from the `docs/` directory:
 ## Customization
 
 ### Adding New Customizations
-1. Add the markdown file to `docs/rules/` or `docs/workflows/`
-2. Update the `customizationPaths` array in `js/app.js`
+1. Add the markdown file to `customizations/<category>/` or `customizations/workflows/`
+2. Update the known files in `js/utils/DirectoryScanner.js`
 3. The UI will automatically detect and display the new customization
 
 ### Styling
@@ -129,8 +129,8 @@ To contribute to the web UI:
 ## Troubleshooting
 
 ### Files Not Loading
-- Check that markdown files exist in the `docs/` directory
-- Verify file paths in the `customizationPaths` array
+- Check that markdown files exist in the `customizations/` directory
+- Verify file paths in the `DirectoryScanner` configuration
 - Check browser console for fetch errors
 
 ### Styling Issues

@@ -1,7 +1,16 @@
 ---
 trigger: model_decision
 description: Apply React best practices when working with React components and hooks
+labels: react, javascript, frontend, framework
+author: Windsurf Team
+modified: 2025-11-07
 ---
+
+# React Best Practices
+
+## Description
+
+Apply React best practices when working with React components and hooks.
 
 When working with React code, follow these practices:
 - Use functional components with hooks instead of class components

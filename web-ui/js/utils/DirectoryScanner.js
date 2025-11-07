@@ -45,21 +45,17 @@ export class DirectoryScanner {
     
     async scanSubdirectory(type, subdir) {
         const files = [];
+        const basePath = this.isGitHubPages 
+            ? `${this.basePath}/customizations/${type}/${subdir}`
+            : `../customizations/${type}/${subdir}`;
+        
+        // Get list of known files for this directory
         const commonFilenames = await this.getCommonFilenames(type, subdir);
         
+        // Try to fetch each file - only add if it exists
         for (const filename of commonFilenames) {
             try {
-                let displayPath;
-                if (this.isGitHubPages) {
-                    displayPath = `${this.basePath}/docs/${type}/${subdir}/${filename}${this.fileExtension}`;
-                } else {
-                    if (type === 'workflows') {
-                        displayPath = `customizations/workflows/${subdir}/${filename}${this.fileExtension}`;
-                    } else {
-                        displayPath = `customizations/${subdir}/${filename}${this.fileExtension}`;
-                    }
-                }
-                
+                const displayPath = `${basePath}/${filename}${this.fileExtension}`;
                 const response = await fetch(displayPath, { method: 'HEAD' });
                 
                 if (response.ok) {
@@ -72,6 +68,7 @@ export class DirectoryScanner {
                     });
                 }
             } catch (error) {
+                // File doesn't exist, skip it silently
             }
         }
         
@@ -85,10 +82,10 @@ export class DirectoryScanner {
     async getCommonFilenames(type, subdir) {
         const knownFiles = {
             'rules': {
-                'framework': ['react'],
+                'framework': ['react', 'frontend_guidelines'],
                 'language': ['java', 'typescript'],
                 'security': ['secure-coding'],
-                'style': ['code-review-checklist', 'coding-best-practices']
+                'style': ['frontend-format', 'code-review-checklist', 'coding-best-practices']
             },
             'workflows': {
                 'maintenance': ['debugging-issues'],

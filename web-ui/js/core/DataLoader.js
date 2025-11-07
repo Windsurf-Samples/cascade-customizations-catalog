@@ -94,17 +94,22 @@ export class DataLoader {
     async loadSingleCustomization(fileInfo, type, subdir) {
         const baseName = fileInfo.filename.replace(/\.md$/i, '');
         
-        const filePath = fileInfo.displayPath || `${this.basePath}/docs/${type}/${subdir}/${baseName}${this.fileExtension}`;
+        // Use customizations directory for both display and download
+        let filePath;
+        if (this.isGitHubPages) {
+            // GitHub Pages: Jekyll converts .md to .html
+            filePath = `${this.basePath}/customizations/${type}/${subdir}/${baseName}${this.fileExtension}`;
+        } else {
+            // Local development
+            filePath = fileInfo.displayPath;
+        }
         
+        // windsurfPath is the same as filePath since we're using one directory
         let windsurfPath;
         if (this.isGitHubPages) {
-            windsurfPath = this.getRawGitHubUrl(`.windsurf/${type}/${subdir ? subdir + '/' : ''}${baseName}.md`);
+            windsurfPath = this.getRawGitHubUrl(`customizations/${type}/${subdir}/${baseName}.md`);
         } else {
-            if (type === 'workflows') {
-                windsurfPath = `customizations/workflows/${subdir}/${baseName}.md`;
-            } else {
-                windsurfPath = `customizations/${subdir}/${baseName}.md`;
-            }
+            windsurfPath = filePath;
         }
         
         try {
