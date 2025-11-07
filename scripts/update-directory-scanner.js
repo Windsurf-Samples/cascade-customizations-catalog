@@ -49,11 +49,29 @@ let scannerContent = fs.readFileSync(SCANNER_FILE, 'utf8');
 
 // Find and replace the getCommonFilenames method
 const methodStart = scannerContent.indexOf('async getCommonFilenames(type, subdir) {');
-const methodEnd = scannerContent.indexOf('    }\n    \n    generateTitle', methodStart);
-
-if (methodStart === -1 || methodEnd === -1) {
+if (methodStart === -1) {
     console.error('Could not find getCommonFilenames method in DirectoryScanner.js');
     process.exit(1);
+}
+
+// Find the end of the method - look for the closing brace before generateTitle
+const afterMethod = scannerContent.indexOf('generateTitle(filename)', methodStart);
+if (afterMethod === -1) {
+    console.error('Could not find generateTitle method after getCommonFilenames');
+    process.exit(1);
+}
+
+// Find the last closing brace before generateTitle
+let methodEnd = afterMethod;
+let braceCount = 0;
+for (let i = afterMethod - 1; i > methodStart; i--) {
+    if (scannerContent[i] === '}') {
+        braceCount++;
+        if (braceCount === 1) {
+            methodEnd = i + 1;
+            break;
+        }
+    }
 }
 
 const newMethod = `async getCommonFilenames(type, subdir) {
@@ -61,9 +79,10 @@ const newMethod = `async getCommonFilenames(type, subdir) {
         
         return knownFiles[type]?.[subdir] || [];
     }
+    
     `;
 
-scannerContent = scannerContent.substring(0, methodStart) + newMethod + scannerContent.substring(methodEnd + 6);
+scannerContent = scannerContent.substring(0, methodStart) + newMethod + scannerContent.substring(methodEnd).trimStart();
 
 // Write back
 fs.writeFileSync(SCANNER_FILE, scannerContent, 'utf8');
