@@ -144,11 +144,6 @@
     --type-border: #d8b4fe; /* purple-300 */
     --type-text: #6d28d9;   /* purple-700 */
 }
-.type-badge--bundles {
-    --type-bg: #fff7ed;     /* orange-50 */
-    --type-border: #fed7aa; /* orange-200 */
-    --type-text: #c2410c;   /* orange-700 */
-}
 
 /* Modal layout adjustments */
 #modalScrollArea {

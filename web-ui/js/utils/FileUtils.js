@@ -45,10 +45,38 @@ export class FileUtils {
         }
     }
     
-    static stripMetadata(content) {
+    static stripMetadata(content, type = null) {
         let cleaned = content;
         
-        cleaned = cleaned.replace(/^---[\s\S]*?---\n/, '');
+        const yamlMatch = content.match(/^---\n([\s\S]*?)\n---\n/);
+        if (yamlMatch && type) {
+            const yamlContent = yamlMatch[1];
+            const lines = yamlContent.split('\n');
+            
+            let trigger = '';
+            let description = '';
+            
+            for (const line of lines) {
+                if (line.startsWith('trigger:')) {
+                    trigger = line;
+                } else if (line.startsWith('description:')) {
+                    description = line;
+                }
+            }
+            
+            let minimalYaml = '---\n';
+            if (type === 'rules' && trigger) {
+                minimalYaml += trigger + '\n';
+            }
+            if (description) {
+                minimalYaml += description + '\n';
+            }
+            minimalYaml += '---\n';
+            
+            cleaned = content.replace(/^---[\s\S]*?---\n/, minimalYaml);
+        } else {
+            cleaned = cleaned.replace(/^---[\s\S]*?---\n/, '');
+        }
         
         cleaned = cleaned.replace(/<!--[\s\S]*?-->/g, '');
         

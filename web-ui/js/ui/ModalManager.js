@@ -123,7 +123,7 @@ export class ModalManager {
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             
             let content = await response.text();
-            content = FileUtils.stripMetadata(content);
+            content = FileUtils.stripMetadata(content, customization.type);
             
             codeEl.textContent = content;
             
@@ -146,7 +146,7 @@ export class ModalManager {
             await FileUtils.downloadFile(
                 this.currentCustomization.windsurfPath, 
                 filename,
-                FileUtils.stripMetadata
+                (content) => FileUtils.stripMetadata(content, this.currentCustomization.type)
             );
         } catch (error) {
             alert(error.message);
