@@ -49,7 +49,17 @@ export class DirectoryScanner {
         
         for (const filename of commonFilenames) {
             try {
-                const displayPath = `${this.basePath}/docs/${type}/${subdir}/${filename}${this.fileExtension}`;
+                let displayPath;
+                if (this.isGitHubPages) {
+                    displayPath = `${this.basePath}/docs/${type}/${subdir}/${filename}${this.fileExtension}`;
+                } else {
+                    if (type === 'workflows') {
+                        displayPath = `customizations/workflows/${subdir}/${filename}${this.fileExtension}`;
+                    } else {
+                        displayPath = `customizations/${subdir}/${filename}${this.fileExtension}`;
+                    }
+                }
+                
                 const response = await fetch(displayPath, { method: 'HEAD' });
                 
                 if (response.ok) {

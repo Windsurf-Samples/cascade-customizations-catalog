@@ -134,13 +134,21 @@ export class DataLoader {
         const filePath = fileInfo.displayPath || `${this.basePath}/docs/${type}/${subdir}/${baseName}${this.fileExtension}`;
         
         const bundleName = this.ruleToBundleMapping[fileInfo.filename];
-        const windsurfPath = bundleName 
-            ? (this.isGitHubPages
-                ? this.getRawGitHubUrl(`bundles/${bundleName}/windsurf/${type}/${baseName}.md`)
-                : `bundles/${bundleName}/windsurf/${type}/${baseName}.md`)
-            : (this.isGitHubPages
-                ? this.getRawGitHubUrl(`.windsurf/${type}/${subdir ? subdir + '/' : ''}${baseName}.md`)
-                : `${this.basePath}/.windsurf/${type}/${subdir ? subdir + '/' : ''}${baseName}.md`);
+        
+        let windsurfPath;
+        if (this.isGitHubPages) {
+            if (bundleName) {
+                windsurfPath = this.getRawGitHubUrl(`bundles/${bundleName}/windsurf/${type}/${baseName}.md`);
+            } else {
+                windsurfPath = this.getRawGitHubUrl(`.windsurf/${type}/${subdir ? subdir + '/' : ''}${baseName}.md`);
+            }
+        } else {
+            if (type === 'workflows') {
+                windsurfPath = `customizations/workflows/${subdir}/${baseName}.md`;
+            } else {
+                windsurfPath = `customizations/${subdir}/${baseName}.md`;
+            }
+        }
         
         try {
             const response = await fetch(filePath);
