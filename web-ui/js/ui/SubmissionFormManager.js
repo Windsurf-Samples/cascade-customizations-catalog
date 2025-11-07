@@ -249,9 +249,9 @@ export class SubmissionFormManager {
                 examples: document.getElementById('submitExamples').value
             };
             
-            await this.createGitHubIssue(formData);
+            const result = await this.submitToBackend(formData);
             
-            alert('Thank you for your submission! A GitHub issue has been created and will be reviewed by the maintainers.');
+            alert(`Success! ${result.message}\n\nFile created at: ${result.file_path}\nCommit: ${result.commit_sha.substring(0, 7)}`);
             this.closeModal();
             
         } catch (error) {
@@ -263,42 +263,39 @@ export class SubmissionFormManager {
         }
     }
     
-    async createGitHubIssue(formData) {
-        const issueBody = `
-## Customization Details
-
-**Title:** ${formData.title}
-
-**Description:** ${formData.description}
-
-**Category:** ${formData.category}
-${formData.subcategory ? `\n**Subcategory:** ${formData.subcategory}` : ''}
-
-**Labels:** ${formData.labels.join(', ')}
-${formData.activation ? `\n**Activation Mode:** ${formData.activation}` : ''}
-
-## Content
-
-\`\`\`markdown
-${formData.content}
-\`\`\`
-
-${formData.instructions ? `## Usage Instructions\n\n${formData.instructions}\n` : ''}
-${formData.examples ? `## Usage Examples\n\n${formData.examples}\n` : ''}
-
----
-
-*Submitted via web UI*
-`;
-
-        const issueTitle = `[Customization Proposal]: ${formData.title}`;
+    async submitToBackend(formData) {
+        const apiUrl = 'http://localhost:8001/api/submit';
         
-        const repoUrl = 'https://github.com/Windsurf-Samples/cascade-customizations-catalog';
-        const issueUrl = new URL(`${repoUrl}/issues/new`);
-        issueUrl.searchParams.set('title', issueTitle);
-        issueUrl.searchParams.set('body', issueBody);
-        issueUrl.searchParams.set('labels', 'proposal,triage');
-        
-        window.open(issueUrl.toString(), '_blank');
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    title: formData.title,
+                    description: formData.description,
+                    category: formData.category,
+                    subcategory: formData.subcategory || null,
+                    labels: formData.labels,
+                    activation: formData.activation || null,
+                    content: formData.content,
+                    instructions: formData.instructions || null,
+                    examples: formData.examples || null
+                })
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.detail || 'Submission failed');
+            }
+            
+            const result = await response.json();
+            return result;
+            
+        } catch (error) {
+            console.error('Submission error:', error);
+            throw error;
+        }
     }
 }
