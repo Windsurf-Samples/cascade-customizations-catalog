@@ -183,60 +183,95 @@ body {
 /* Search Input */
 .search-input {
     background: var(--bg-card);
-    border: 2px solid var(--border-color);
+    border: 1px solid var(--border-color);
     color: var(--text-primary);
-    padding: 0.75rem 1rem;
+    padding: 0.625rem 1rem;
     border-radius: 8px;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     font-size: 0.9375rem;
+    line-height: 1.5;
 }
 
 .search-input:focus {
     outline: none;
     border-color: var(--accent-primary);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .search-input::placeholder {
-    color: var(--text-tertiary);
+    color: var(--text-muted);
 }
 
 /* Filter Buttons */
 .filter-btn {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
-    color: var(--text-primary);
+    color: var(--text-secondary);
     padding: 0.5rem 1rem;
     border-radius: 8px;
     font-weight: 500;
-    transition: all 0.3s ease;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
     cursor: pointer;
 }
 
 .filter-btn:hover {
-    background: var(--bg-tertiary);
-    border-color: var(--accent-primary);
-    color: var(--accent-primary);
+    background: var(--bg-hover);
+    border-color: var(--border-hover);
+    color: var(--text-primary);
 }
 
 .filter-btn.active {
     background: var(--accent-primary);
     border-color: var(--accent-primary);
     color: white;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    box-shadow: var(--shadow-sm);
+    font-weight: 600;
 }
 
 /* Modal */
 .modal {
-    background: rgba(15, 23, 42, 0.75);
-    backdrop-filter: blur(8px);
+    background: rgba(17, 24, 39, 0.75);
+    backdrop-filter: blur(4px);
 }
 
 .modal-content {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
-    border-radius: 16px;
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+    border-radius: 12px;
+    box-shadow: var(--shadow-xl);
+}
+
+/* Form Elements */
+input[type="text"],
+input[type="email"],
+textarea,
+select {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.625rem 0.875rem;
+    border-radius: 8px;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    transition: all 0.2s ease;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+label {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+    display: block;
 }
 
 /* Code Blocks */
