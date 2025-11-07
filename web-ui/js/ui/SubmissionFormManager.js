@@ -42,6 +42,86 @@ export class SubmissionFormManager {
                 this.handleSubmit();
             });
         }
+        
+        this.setupFileUpload();
+    }
+    
+    setupFileUpload() {
+        const fileUploadZone = document.getElementById('fileUploadZone');
+        const fileInput = document.getElementById('fileInput');
+        
+        if (!fileUploadZone || !fileInput) return;
+        
+        fileUploadZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        fileUploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUploadZone.classList.add('border-blue-500', 'bg-blue-50');
+        });
+        
+        fileUploadZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            fileUploadZone.classList.remove('border-blue-500', 'bg-blue-50');
+        });
+        
+        fileUploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUploadZone.classList.remove('border-blue-500', 'bg-blue-50');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                this.handleFileUpload(files[0]);
+            }
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                this.handleFileUpload(e.target.files[0]);
+            }
+        });
+    }
+    
+    async handleFileUpload(file) {
+        if (!file.name.endsWith('.md') && !file.name.endsWith('.markdown')) {
+            alert('Please upload a markdown (.md) file');
+            return;
+        }
+        
+        try {
+            const content = await file.text();
+            
+            const contentTextarea = document.getElementById('submitContent');
+            if (contentTextarea) {
+                contentTextarea.value = content;
+            }
+            
+            this.showUploadSuccess(file.name);
+        } catch (error) {
+            console.error('Error reading file:', error);
+            alert('Failed to read file. Please try again.');
+        }
+    }
+    
+    showUploadSuccess(filename) {
+        const uploadPrompt = document.getElementById('uploadPrompt');
+        const uploadSuccess = document.getElementById('uploadSuccess');
+        const uploadedFileName = document.getElementById('uploadedFileName');
+        
+        if (uploadPrompt) uploadPrompt.classList.add('hidden');
+        if (uploadSuccess) uploadSuccess.classList.remove('hidden');
+        if (uploadedFileName) uploadedFileName.textContent = filename;
+    }
+    
+    resetUploadUI() {
+        const uploadPrompt = document.getElementById('uploadPrompt');
+        const uploadSuccess = document.getElementById('uploadSuccess');
+        const fileInput = document.getElementById('fileInput');
+        
+        if (uploadPrompt) uploadPrompt.classList.remove('hidden');
+        if (uploadSuccess) uploadSuccess.classList.add('hidden');
+        if (fileInput) fileInput.value = '';
     }
     
     openModal() {
@@ -67,6 +147,7 @@ export class SubmissionFormManager {
         this.updateLabelsDisplay();
         document.getElementById('subcategoryContainer').classList.add('hidden');
         document.getElementById('activationContainer').classList.add('hidden');
+        this.resetUploadUI();
     }
     
     handleCategoryChange(category) {
