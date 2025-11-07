@@ -38,10 +38,14 @@ Workflows can be used for one time tasks like project setup or repeated tasks li
 
 Use our interactive web interface to explore customizations. The web catalog provides:
 
+- **Modern UI**: Clean, professional design with Windsurf branding and excellent readability
 - **Search and Filter**: Find customizations by technology, category, or keywords
-- **Live Preview**: View rule and workflow content directly in the browser
-- **Easy Download**: Download individual customizations with proper formatting
+- **Color-Coded Tags**: Automatic color generation for tags - every tag gets a unique, vibrant color
+- **Live Preview**: View rule and workflow content directly in the browser with syntax highlighting
+- **Easy Download**: Download individual customizations with proper formatting for Windsurf
 - **Copy to Clipboard**: Quickly copy customization content for use in your projects
+- **Metadata Display**: See author, creation date, and modification date for each customization
+- **Submit New Customizations**: Built-in form to contribute new rules and workflows via GitHub PR
 
 ## Getting Started
 
@@ -51,9 +55,10 @@ Use our interactive web interface to explore customizations. The web catalog pro
 Visit the [web catalog](https://cognitionteam20scavenger.github.io/cascade-customizations-catalog/web-ui/index.html) to explore available rules and workflows. Use the search and filter features to find customizations relevant to your development needs.
 
 #### 2. Download or Copy Customizations
-- Click on any customization to view its content
-- Use the **Download** button to save the file to your local machine
-- Use the **Copy** button to copy the content to your clipboard
+- Click on any customization card to view its full content in a modal
+- Use the **Download** button to save the file with Windsurf-ready formatting (strips catalog metadata)
+- Use the **Copy** button to copy the content directly to your clipboard
+- View all metadata including author, tags, and last modified date
 
 #### 3. Add to Your Workspace
 Place the downloaded customization files in your project's `.windsurf` directory:
@@ -112,7 +117,28 @@ Rules use different activation modes:
 
 This repository serves as a reference model for enterprise cataloging. While we welcome community contributions of example customizations, the primary value is in the organizational structure and patterns demonstrated here.
 
-Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to submit new example customizations or improvements to the catalog structure.
+### Submit via Web Interface
+The easiest way to contribute is through our web interface:
+1. Visit the [web catalog](https://cognitionteam20scavenger.github.io/cascade-customizations-catalog/web-ui/index.html)
+2. Click the **"Submit New Customization"** button
+3. Fill out the form with your rule or workflow details
+4. The form will automatically:
+   - Generate proper YAML frontmatter with metadata
+   - Merge any existing frontmatter from pasted content
+   - Create a GitHub PR with your contribution
+   - Add your name as the author with today's date
+
+### Manual Contribution
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to manually submit new example customizations or improvements to the catalog structure.
+
+### Metadata Format
+All customizations include YAML frontmatter with:
+- `trigger`: Activation mode (for rules: always_on, model_decision, glob, manual)
+- `globs`: File patterns (for glob-based rules)
+- `description`: Brief description of the customization
+- `labels`: Comma-separated tags for categorization
+- `author`: Creator's name or username
+- `modified`: Last modification date (YYYY-MM-DD)
 
 ## License
 
