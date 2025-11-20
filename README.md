@@ -34,7 +34,7 @@ Workflows can be used for one time tasks like project setup or repeated tasks li
 ## Browse the Catalog
 
 ### Google Doc with Examples
-**(https://docs.google.com/document/d/1W51klY_JnO5uk5A85w5b1lqF_WHHfNo3ZouVEKfDMS8/edit?usp=sharing)**
+**[Google Doc Interface](https://docs.google.com/document/d/1W51klY_JnO5uk5A85w5b1lqF_WHHfNo3ZouVEKfDMS8/edit?usp=sharing)**
 
 ### 🌐 Web Interface
 **[Browse the Catalog Online](https://cognitionteam20scavenger.github.io/cascade-customizations-catalog/web-ui/index.html)**
