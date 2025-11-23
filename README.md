@@ -37,7 +37,7 @@ Workflows can be used for one time tasks like project setup or repeated tasks li
 **[Google Doc Interface](https://docs.google.com/document/d/1W51klY_JnO5uk5A85w5b1lqF_WHHfNo3ZouVEKfDMS8/edit?usp=sharing)**
 
 ### 🌐 Web Interface
-**[Browse the Catalog Online](https://cognitionteam20scavenger.github.io/cascade-customizations-catalog/web-ui/index.html)**
+**[Browse the Catalog Online](https://windsurf-samples.github.io/cascade-customizations-catalog/web-ui/index.html)**
 
 Use our interactive web interface to explore customizations. The web catalog provides:
 
@@ -55,7 +55,7 @@ Use our interactive web interface to explore customizations. The web catalog pro
 ### Using Customizations
 
 #### 1. Browse the Catalog
-Visit the [web catalog](https://cognitionteam20scavenger.github.io/cascade-customizations-catalog/web-ui/index.html) to explore available rules and workflows. Use the search and filter features to find customizations relevant to your development needs.
+Visit the [web catalog](https://windsurf-samples.github.io/cascade-customizations-catalog/web-ui/index.html) to explore available rules and workflows. Use the search and filter features to find customizations relevant to your development needs.
 
 #### 2. Download or Copy Customizations
 - Click on any customization card to view its full content in a modal
@@ -88,7 +88,7 @@ cp "Downloaded Workflow.md" /path/to/your/project/.windsurf/workflows/
 4. **Version Control**: Track customization versions and maintain them in your own repository
 
 ### For Individual Use
-1. **Browse Online**: Visit the [web catalog](https://cognitionteam20scavenger.github.io/cascade-customizations-catalog/web-ui/index.html) to explore available customizations
+1. **Browse Online**: Visit the [web catalog](https://windsurf-samples.github.io/cascade-customizations-catalog/web-ui/index.html) to explore available customizations
 2. **Selective Use**: Download and use specific rules or workflows that match your development needs
 3. **Learn More**: Refer to the [Windsurf documentation](https://docs.windsurf.com/windsurf/cascade/workflows) for more information
 
@@ -122,7 +122,7 @@ This repository serves as a reference model for enterprise cataloging. While we 
 
 ### Submit via Web Interface
 The easiest way to contribute is through our web interface:
-1. Visit the [web catalog](https://cognitionteam20scavenger.github.io/cascade-customizations-catalog/web-ui/index.html)
+1. Visit the [web catalog](https://windsurf-samples.github.io/cascade-customizations-catalog/web-ui/index.html)
 2. Click the **"Submit New Customization"** button
 3. Fill out the form with your rule or workflow details
 4. The form will automatically:

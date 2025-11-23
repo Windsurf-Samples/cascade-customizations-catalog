@@ -1,7 +1,7 @@
 # GitHub Pages configuration for Cascade Customizations Catalog
 title: Cascade Customizations Catalog
 description: Community-driven rules and workflows for Windsurf Cascade
-url: "https://cognitionteam20scavenger.github.io"
+url: "https://windsurf-samples.github.io"
 baseurl: "/cascade-customizations-catalog"
 
 # Web UI directory
