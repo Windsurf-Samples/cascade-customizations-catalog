@@ -21,9 +21,12 @@ export class FilterManager {
         this.labelsByCategory = {}; // Will be populated from static mapping in renderLabelFilters
         
         customizations.forEach(customization => {
-            customization.labels.forEach(label => {
-                this.allLabels.add(label);
-            });
+            const labels = customization.labels || [];
+            if (Array.isArray(labels)) {
+                labels.forEach(label => {
+                    this.allLabels.add(label);
+                });
+            }
         });
     }
     
@@ -109,8 +112,9 @@ export class FilterManager {
             
             // Label filter
             if (this.activeFilters.labels.size > 0) {
+                const customizationLabels = customization.labels || [];
                 const hasMatchingLabel = Array.from(this.activeFilters.labels)
-                    .some(label => customization.labels.includes(label));
+                    .some(label => customizationLabels.includes(label));
                 if (!hasMatchingLabel) return false;
             }
             
@@ -120,7 +124,7 @@ export class FilterManager {
                     customization.title,
                     customization.description,
                     customization.category,
-                    ...customization.labels
+                    ...(customization.labels || [])
                 ].join(' ').toLowerCase();
                 
                 if (!searchableText.includes(this.activeFilters.search)) return false;

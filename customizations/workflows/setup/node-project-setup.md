@@ -1,6 +1,13 @@
 ---
 description: Complete setup workflow for a new Node.js project with TypeScript and testing
+labels: nodejs, typescript, setup, testing, workflow
+author: Windsurf Team
+modified: 2025-11-07
 ---
+
+# Node.js Project Setup
+
+## Description
 
 This workflow guides you through setting up a professional Node.js project with TypeScript, testing, and development tools.
 

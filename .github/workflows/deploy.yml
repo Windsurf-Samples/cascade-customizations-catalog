@@ -7,9 +7,10 @@
 # Catalog website to GitHub Pages whenever changes are pushed to the main branch.
 #
 # WHAT IT DOES:
-# 1. Checks out the repository code
-# 2. Builds the Jekyll static site (converts Markdown files to HTML)
-# 3. Deploys the built site to GitHub Pages
+# 1. Updates the DirectoryScanner with any new customization files
+# 2. Checks out the repository code
+# 3. Builds the Jekyll static site (converts Markdown files to HTML)
+# 4. Deploys the built site to GitHub Pages
 #
 # FOR CONTRIBUTORS:
 # - This workflow runs automatically when you merge a PR to main
@@ -35,6 +36,11 @@ on:
   # Automatically runs when code is pushed to the main branch.
   # This includes direct pushes and merged pull requests.
   push:
+    branches: ["main"]
+
+  # Runs on pull requests targeting the default branch for PR previews.
+  # This allows contributors to see how their changes will look before merging.
+  pull_request:
     branches: ["main"]
 
   # Allows manual triggering from the GitHub Actions tab.
@@ -71,10 +77,63 @@ concurrency:
 # -----------------------------------------------------------------------------
 jobs:
   # ===========================================================================
+  # UPDATE DIRECTORY SCANNER JOB
+  # ===========================================================================
+  # This job scans the customizations/ directory and updates DirectoryScanner.js
+  # with the list of available files. This enables the web UI to discover and
+  # display all customizations without needing to make directory listing API calls.
+  #
+  # The job:
+  # 1. Checks out the repository
+  # 2. Sets up Node.js environment
+  # 3. Runs the scanner script to find all .md files in customizations/
+  # 4. Updates DirectoryScanner.js with the file list
+  # 5. Commits and pushes the changes (if any)
+  update-scanner:
+    runs-on: ubuntu-latest
+    steps:
+      # -----------------------------------------------------------------------
+      # Step 1: Checkout Repository
+      # -----------------------------------------------------------------------
+      # Downloads the repository code so the scanner script can analyze it.
+      - uses: actions/checkout@v3
+      
+      # -----------------------------------------------------------------------
+      # Step 2: Setup Node.js
+      # -----------------------------------------------------------------------
+      # Installs Node.js v18 which is required to run the scanner script.
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      # -----------------------------------------------------------------------
+      # Step 3: Update DirectoryScanner
+      # -----------------------------------------------------------------------
+      # Runs the script that scans customizations/ and updates DirectoryScanner.js
+      # with an embedded list of all available files.
+      - name: Update DirectoryScanner
+        run: node scripts/update-directory-scanner.js
+      
+      # -----------------------------------------------------------------------
+      # Step 4: Commit and Push Changes
+      # -----------------------------------------------------------------------
+      # If the scanner found new or removed files, commit the updated
+      # DirectoryScanner.js. The [skip ci] tag prevents an infinite loop
+      # of builds triggering more builds.
+      - name: Commit changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add web-ui/js/utils/DirectoryScanner.js
+          git diff --quiet && git diff --staged --quiet || git commit -m "Auto-update DirectoryScanner with new files [skip ci]"
+          git push || true
+  
+  # ===========================================================================
   # BUILD JOB
   # ===========================================================================
   # This job compiles the Jekyll site from source files.
-  # It converts Markdown files in docs/, windsurf/, and web-ui/ into
+  # It converts Markdown files in docs/, customizations/, and web-ui/ into
   # a static HTML website that can be served by GitHub Pages.
   build:
     runs-on: ubuntu-latest

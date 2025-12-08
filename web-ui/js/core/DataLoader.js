@@ -1,5 +1,6 @@
-import { MetadataExtractor } from './MetadataExtractor.js?v=final';
-import { DateUtils } from '../utils/DateUtils.js?v=final';
+import { MetadataExtractor } from './MetadataExtractor.js?v=20251107';
+import { DateUtils } from '../utils/DateUtils.js?v=20251107';
+import { DirectoryScanner } from '../utils/DirectoryScanner.js?v=20251107';
 
 /**
  * Handles data loading and processing with environment-aware path resolution
@@ -9,6 +10,9 @@ export class DataLoader {
         this.isGitHubPages = window.location.hostname.includes('github.io');
         this.basePath = this.getBasePath();
         this.fileExtension = this.isGitHubPages ? '.html' : '.md';
+        this.directoryScanner = new DirectoryScanner(this.isGitHubPages, this.basePath, this.fileExtension);
+        
+        this.enableNewPathResolution = true;
     }
     
     getBasePath() {
@@ -46,15 +50,13 @@ export class DataLoader {
         const customizations = [];
         
         try {
-            // Load rules
             const rulesData = await this.loadCustomizationsFromDirectory('rules');
             customizations.push(...rulesData);
             
-            // Load workflows
             const workflowsData = await this.loadCustomizationsFromDirectory('workflows');
             customizations.push(...workflowsData);
             
-            console.log(`Loaded ${customizations.length} customizations total`);
+            console.log(`Loaded ${customizations.length} items total`);
             return customizations;
         } catch (error) {
             console.error('Failed to load customizations:', error);
@@ -65,83 +67,50 @@ export class DataLoader {
     async loadCustomizationsFromDirectory(type) {
         const customizations = [];
         
-        // Define actual directory structure
-        const directories = type === 'rules' 
-            ? ['framework', 'language', 'security', 'style']
-            : ['maintenance', 'setup'];
+        try {
+            const discoveredFiles = await this.directoryScanner.discoverFiles(type);
             
-        for (const dir of directories) {
-            try {
-                const items = await this.loadFromSubdirectory(type, dir);
-                customizations.push(...items);
-            } catch (error) {
-                console.warn(`Failed to load from ${type}/${dir}:`, error);
+            for (const fileInfo of discoveredFiles) {
+                try {
+                    const item = await this.loadSingleCustomization(fileInfo, type, fileInfo.subdir);
+                    if (item) customizations.push(item);
+                } catch (error) {
+                    console.warn(`Failed to load ${fileInfo.filename}:`, error);
+                }
             }
+        } catch (error) {
+            console.error(`Failed to discover files for ${type}:`, error);
         }
         
         return customizations;
     }
     
     async loadFromSubdirectory(type, subdir) {
-        const items = [];
+        console.warn('loadFromSubdirectory is deprecated - use DirectoryScanner instead');
+        return [];
+    }
+    
+    
+    async loadSingleCustomization(fileInfo, type, subdir) {
+        const baseName = fileInfo.filename.replace(/\.md$/i, '');
         
-        // Since there are no index files, we'll use a predefined list of known files
-        const knownFiles = this.getKnownFiles(type, subdir);
-        
-        for (const fileInfo of knownFiles) {
-            try {
-                const item = await this.loadSingleCustomization(fileInfo, type, subdir);
-                if (item) items.push(item);
-            } catch (error) {
-                console.warn(`Failed to load ${fileInfo.filename}:`, error);
-            }
+        // Use customizations directory for both display and download
+        let filePath;
+        if (this.isGitHubPages) {
+            // GitHub Pages: Jekyll converts .md to .html
+            filePath = `${this.basePath}/customizations/${type}/${subdir}/${baseName}${this.fileExtension}`;
+        } else {
+            // Local development
+            filePath = fileInfo.displayPath;
         }
         
-        return items;
-    }
-    
-    getKnownFiles(type, subdir) {
-        // Define the actual files that exist in the repository
-        const fileMap = {
-            'rules': {
-                'framework': [
-                    { title: 'React Best Practices', filename: 'react.md' }
-                ],
-                'language': [
-                    { title: 'Java Development Guidelines', filename: 'java.md' },
-                    { title: 'TypeScript Best Practices', filename: 'typescript.md' }
-                ],
-                'security': [
-                    { title: 'Secure Coding Practices', filename: 'secure-coding.md' }
-                ],
-                'style': [
-                    { title: 'Code Review Checklist', filename: 'code-review-checklist.md' },
-                    { title: 'Coding Best Practices', filename: 'coding-best-practices.md' }
-                ]
-            },
-            'workflows': {
-                'maintenance': [
-                    { title: 'Debugging Issues Workflow', filename: 'debugging-issues.md' }
-                ],
-                'setup': [
-                    { title: 'Development Environment Setup', filename: 'dev-environment-setup.md' },
-                    { title: 'Node.js Project Setup', filename: 'node-project-setup.md' }
-                ]
-            }
-        };
-        
-        return fileMap[type]?.[subdir] || [];
-    }
-    
-    async loadSingleCustomization(link, type, subdir) {
-        const baseName = link.filename.replace(/\.md$/i, '');
-        // Display path: .html on GitHub Pages, .md locally
-        const filePath = `${this.basePath}/docs/${type}/${subdir}/${baseName}${this.fileExtension}`;
-        // Source path for download/copy/raw viewer: point to .windsurf sources
-        // Use raw.githubusercontent.com on GH Pages, local path in dev
-        const windsurfPath = this.isGitHubPages
-            ? this.getRawGitHubUrl(`.windsurf/${type}/${subdir}/${baseName}.md`)
-            : `${this.basePath}/.windsurf/${type}/${subdir}/${baseName}.md`;
+        // windsurfPath is the same as filePath since we're using one directory
+        let windsurfPath;
+        if (this.isGitHubPages) {
+            windsurfPath = this.getRawGitHubUrl(`customizations/${type}/${subdir}/${baseName}.md`);
+        } else {
+            windsurfPath = filePath;
+        }
         
         try {
             const response = await fetch(filePath);
@@ -157,17 +126,17 @@ export class DataLoader {
                 metadata = MetadataExtractor.extractMetadataFromYAML(content);
             }
             
-            // Fallback label extraction if no metadata labels found
-            if (!metadata.labels || metadata.labels.length === 0) {
-                metadata.labels = MetadataExtractor.extractLabelsFromContent(content);
+            // Only use YAML labels - no automatic content extraction
+            if (!metadata.labels) {
+                metadata.labels = [];
             }
             
             // Extract description from content
             const description = this.extractDescription(content);
             
             return {
-                id: `${type}-${subdir}-${link.filename.replace('.md', '')}`,
-                title: link.title,
+                id: `${type}-${subdir}-${fileInfo.filename.replace('.md', '')}`,
+                title: fileInfo.title,
                 description: description,
                 type: type,
                 category: this.formatCategory(metadata.category || subdir),
@@ -180,7 +149,7 @@ export class DataLoader {
                 modified: DateUtils.formatDate(metadata.modified || new Date().toISOString())
             };
         } catch (error) {
-            console.warn(`Failed to process ${link.filename}:`, error);
+            console.warn(`Failed to process ${fileInfo.filename}:`, error);
             return null;
         }
     }

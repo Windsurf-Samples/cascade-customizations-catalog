@@ -32,8 +32,8 @@ description: Community-driven rules and workflows for Windsurf Cascade
 # The base URL where the site is hosted.
 # 'url' is the protocol and domain (e.g., https://example.github.io)
 # 'baseurl' is the path after the domain (e.g., /repo-name)
-# Together they form: https://windsurf-ai.github.io/cascade-customizations-catalog
-url: "https://windsurf-ai.github.io"
+# Together they form: https://windsurf-samples.github.io/cascade-customizations-catalog
+url: "https://windsurf-samples.github.io"
 baseurl: "/cascade-customizations-catalog"
 
 # -----------------------------------------------------------------------------

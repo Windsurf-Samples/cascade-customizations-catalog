@@ -59,7 +59,7 @@ body:
     id: labels
     attributes:
       label: Applicable Tags (Labels)
-      description: "Choose any applicable labels. See the full list and guidance: https://github.com/Windsurf-Samples/cascade-customizations-catalog/blob/main/docs/labels.md"
+      description: "Choose any applicable labels for categorization and discoverability"
       multiple: true
       options:
         # Languages
@@ -192,8 +192,8 @@ body:
     attributes:
       value: |
         Location mapping:
-        - Rules will live under `.windsurf/rules/<subcategory>/`
-        - Workflows will live under `.windsurf/workflows/`
+        - Rules will live under `customizations/rules/<subcategory>/`
+        - Workflows will live under `customizations/workflows/<subcategory>/`
 
   # Example or Full Details
   - type: input
