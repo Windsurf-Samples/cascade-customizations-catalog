@@ -1,6 +1,16 @@
 ---
 trigger: always_on
+description: Security best practices to follow in all code development
+labels: security, always-on, best-practices
+author: Windsurf Team
+modified: 2025-11-07
 ---
+
+# Secure Coding Practices
+
+## Description
+
+Security best practices to follow in all code development.
 
 Always prioritize security in code development:
 - Never hardcode sensitive information like API keys, passwords, or tokens

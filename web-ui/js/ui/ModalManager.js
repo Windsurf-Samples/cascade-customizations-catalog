@@ -1,4 +1,4 @@
-import { ColorUtils } from '../utils/ColorUtils.js?v=20250815-rawfix';
+import { ColorUtils } from '../utils/ColorUtils.js?v=20251107-colors';
 import { FileUtils } from '../utils/FileUtils.js?v=20250815-rawfix';
 
 /**
@@ -34,14 +34,6 @@ export class ModalManager {
         if (copyBtn) {
             copyBtn.addEventListener('click', () => this.copyCurrent());
         }
-        
-        // Copy raw content button
-        const copyRawBtn = document.getElementById('copyRawBtn');
-        if (copyRawBtn) {
-            copyRawBtn.addEventListener('click', async () => {
-                await this.copyRawContent();
-            });
-        }
     }
     
     async openModal(customization) {
@@ -49,17 +41,15 @@ export class ModalManager {
         
         // Update modal content
         this.updateModalHeader(customization);
-        this.updateModalContent(customization);
         this.updateModalActions(customization);
         
         // Show modal
         const modal = document.getElementById('customizationModal');
         if (modal) {
             modal.classList.add('active');
-            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            document.body.style.overflow = 'hidden';
         }
         
-        // Load raw content for the viewer (positioned at top per user preference)
         await this.populateRawContent(customization);
     }
     
@@ -79,82 +69,52 @@ export class ModalManager {
         const modified = document.getElementById('modalModified');
         
         if (title) title.textContent = customization.title;
-        if (category) category.textContent = customization.category;
-        if (author) author.textContent = `by ${customization.author}`;
-        if (modified) modified.textContent = customization.modified;
+        if (category) {
+            const categorySpan = category.querySelector('span');
+            if (categorySpan) categorySpan.textContent = customization.category;
+        }
+        if (author) {
+            const authorSpan = author.querySelector('span');
+            if (authorSpan) authorSpan.textContent = customization.author || 'Unknown';
+        }
+        if (modified) {
+            const modifiedSpan = modified.querySelector('span');
+            if (modifiedSpan) modifiedSpan.textContent = customization.modified || 'Unknown';
+        }
         
         // Update type badge
         const typeBadge = document.getElementById('modalType');
         if (typeBadge) {
-            const typeIcon = customization.type === 'rules' ? 'fas fa-cogs' : 'fas fa-list-ol';
-            const badgeClass = customization.type === 'rules' ? 'type-badge--rules' : 'type-badge--workflows';
+            let typeIcon, badgeClass, typeLabel;
+            
+            if (customization.type === 'rules') {
+                typeIcon = 'fas fa-cogs';
+                badgeClass = 'type-badge--rules';
+                typeLabel = 'Rule';
+            } else if (customization.type === 'workflows') {
+                typeIcon = 'fas fa-list-ol';
+                badgeClass = 'type-badge--workflows';
+                typeLabel = 'Workflow';
+            }
             
             typeBadge.className = `type-badge ${badgeClass}`;
             typeBadge.innerHTML = `
                 <i class="${typeIcon}"></i>
-                ${customization.type.charAt(0).toUpperCase() + customization.type.slice(1, -1)}
+                ${typeLabel}
             `;
         }
         
         // Update labels
         const labelsContainer = document.getElementById('modalLabels');
         if (labelsContainer) {
-            labelsContainer.innerHTML = customization.labels.map(label => 
-                `<span class="tag ${ColorUtils.getLabelColorClass(label)}">${label}</span>`
-            ).join('');
+            const labels = customization.labels || [];
+            labelsContainer.innerHTML = labels.map(label => {
+                const colors = ColorUtils.getLabelColors(label);
+                return `<span class="tag" style="background-color: ${colors.bg} !important; color: ${colors.text} !important; border-color: ${colors.border} !important;">${label}</span>`;
+            }).join('');
         }
     }
     
-    async updateModalContent(customization) {
-        const contentContainer = document.getElementById('modalContent');
-        if (!contentContainer) return;
-        
-        contentContainer.innerHTML = '<div class="flex justify-center py-8"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>';
-        
-        try {
-            const response = await fetch(customization.path);
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            
-            let content = await response.text();
-            
-            // Remove YAML frontmatter for display
-            content = content.replace(/^---[\s\S]*?---\n/, '');
-            
-            // Remove HTML comments for display
-            content = content.replace(/<!--[\s\S]*?-->/g, '');
-            
-            // Determine if we're dealing with Jekyll-rendered HTML (GitHub Pages)
-            const isHtmlDoc = /\.html(\?|$)/i.test(customization.path);
-
-            // Use HTML as-is for Jekyll output; convert Markdown locally
-            let htmlContent;
-            if (isHtmlDoc) {
-                htmlContent = content;
-            } else {
-                // Convert markdown to HTML (prefer Marked if available for proper semantics)
-                if (window.marked && typeof window.marked.parse === 'function') {
-                    htmlContent = window.marked.parse(content);
-                } else {
-                    htmlContent = this.markdownToHtml(content);
-                }
-            }
-            contentContainer.innerHTML = htmlContent;
-
-            if (isHtmlDoc) {
-                // Jekyll/rouge often emits <div class="highlight"><pre>...<span> tokens</span></pre></div>.
-                // Normalize to Prism structure for consistent styling and avoid literal span text.
-                this.normalizeRougeBlocksToPrism(contentContainer);
-            } else {
-                // Apply syntax highlighting for locally converted Markdown
-                if (window.Prism && typeof Prism.highlightAll === 'function') {
-                    Prism.highlightAll();
-                }
-            }
-        } catch (error) {
-            console.error('Failed to load content:', error);
-            contentContainer.innerHTML = '<p class="text-red-600">Failed to load content. Please try again.</p>';
-        }
-    }
     
     updateModalActions(customization) {
         // Update download button filename
@@ -172,7 +132,9 @@ export class ModalManager {
             const response = await fetch(customization.windsurfPath + `?v=${Date.now()}`, { cache: 'no-store' });
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             
-            const content = await response.text();
+            let content = await response.text();
+            content = FileUtils.stripMetadata(content, customization.type);
+            
             codeEl.textContent = content;
             
             if (window.Prism && typeof Prism.highlightElement === 'function') {
@@ -180,17 +142,21 @@ export class ModalManager {
             }
         } catch (err) {
             console.warn('Failed to load raw content:', err);
-            codeEl.textContent = 'Unable to load source content. You can still use Download or Copy.';
+            codeEl.textContent = 'Unable to load source content.';
         }
     }
     
     async downloadCurrent() {
         if (!this.currentCustomization) return;
         
+        const typeLabel = this.currentCustomization.type === 'rules' ? 'rule' : 'workflow';
+        const filename = `${this.currentCustomization.title} ${typeLabel}.md`;
+        
         try {
             await FileUtils.downloadFile(
                 this.currentCustomization.windsurfPath, 
-                this.currentCustomization.filename
+                filename,
+                (content) => FileUtils.stripMetadata(content, this.currentCustomization.type)
             );
         } catch (error) {
             alert(error.message);
@@ -201,7 +167,10 @@ export class ModalManager {
         if (!this.currentCustomization) return;
         
         try {
-            await FileUtils.copyToClipboard(this.currentCustomization.windsurfPath);
+            await FileUtils.copyToClipboard(
+                this.currentCustomization.windsurfPath,
+                FileUtils.stripMetadata
+            );
             
             const btn = document.getElementById('copyBtn');
             if (btn) {
@@ -209,28 +178,6 @@ export class ModalManager {
             }
         } catch (error) {
             alert(error.message);
-        }
-    }
-    
-    async copyRawContent() {
-        const codeEl = document.getElementById('modalRawCode');
-        const text = codeEl ? codeEl.textContent : '';
-        
-        if (text && text !== 'Loading...') {
-            try {
-                await navigator.clipboard.writeText(text);
-                
-                const copyRawBtn = document.getElementById('copyRawBtn');
-                if (copyRawBtn) {
-                    FileUtils.showButtonFeedback(copyRawBtn, 'Copied!', 1800);
-                }
-            } catch (e) {
-                // Fallback to fetch-based copy
-                await this.copyCurrent();
-            }
-        } else {
-            // If not yet loaded, fallback
-            await this.copyCurrent();
         }
     }
     

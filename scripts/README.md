@@ -1,6 +1,6 @@
 # Scripts for Contributors
 
-This directory contains scripts that help contributors set up their local development environment and validate their contributions to the Cascade Customizations Catalog.
+This directory contains scripts that help contributors set up their local development environment, validate their contributions, and maintain the Cascade Customizations Catalog.
 
 ## Quick Start
 
@@ -95,7 +95,7 @@ Validates your customization files to ensure they meet repository standards befo
 - Required content sections (Description, Usage)
 - Recommended sections (Examples)
 - File naming conventions (lowercase with hyphens)
-- Documentation pairing (each .windsurf file should have a docs file)
+- Documentation pairing (each customization file should have a docs file)
 
 **Usage:**
 ```bash
@@ -133,6 +133,25 @@ Validating: docs/rules/language/typescript.md
   [WARN] Section 'Examples' not found (recommended)
 ```
 
+### update-directory-scanner.js - Directory Scanner Updater
+
+Automatically scans the `customizations/` directory and updates `web-ui/js/utils/DirectoryScanner.js` with all discovered files.
+
+**When to use:** After adding new customization files to ensure the web UI can discover and display them.
+
+**What it does:**
+1. Scans `customizations/rules/` and `customizations/workflows/`
+2. Discovers all `.md` files in each subdirectory
+3. Updates the `getCommonFilenames()` method in DirectoryScanner.js
+4. Ensures the web UI can discover and display all files
+
+**Usage:**
+```bash
+node scripts/update-directory-scanner.js
+```
+
+**Automatic Execution:** This script runs automatically via GitHub Actions when new files are added to `customizations/` or changes are pushed to the main branch. No manual intervention needed for GitHub-hosted deployments!
+
 ## Typical Contributor Workflow
 
 Here's the recommended workflow for contributing a new customization:
@@ -153,7 +172,7 @@ git checkout -b add-my-new-rule
 ./scripts/serve.sh
 
 # 5. Create your customization files:
-#    - Add the rule/workflow to .windsurf/rules/ or .windsurf/workflows/
+#    - Add the rule/workflow to customizations/rules/ or customizations/workflows/
 #    - Add documentation to docs/rules/ or docs/workflows/
 
 # 6. Preview your changes in the browser
@@ -199,7 +218,7 @@ How and when to use this customization.
 Practical examples showing the customization in action.
 ```
 
-### Customization Files (in `.windsurf/`)
+### Customization Files (in `customizations/`)
 
 Follow the Windsurf format for rules and workflows. See existing files for examples.
 
@@ -277,9 +296,9 @@ If you want to modify or extend these scripts:
 
 ### Adding a New Script
 
-1. Create the script in this directory with a `.sh` extension
+1. Create the script in this directory with a `.sh` or `.js` extension
 2. Add comprehensive inline documentation (see existing scripts for format)
-3. Include a help option (`--help` or `-h`)
+3. Include a help option (`--help` or `-h`) for shell scripts
 4. Use the helper functions pattern from existing scripts
 5. Update this README with usage information
 
@@ -307,4 +326,7 @@ kill %1
 ./scripts/validate.sh
 ./scripts/validate.sh --help
 ./scripts/validate.sh docs/rules/language/typescript.md
+
+# Test directory scanner
+node scripts/update-directory-scanner.js
 ```
