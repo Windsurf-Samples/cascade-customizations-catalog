@@ -13,7 +13,7 @@
 #   1. YAML Frontmatter: Checks for required fields (labels, author, modified)
 #   2. Required Sections: Verifies presence of Description, Usage, Examples
 #   3. File Naming: Ensures files use lowercase with hyphens
-#   4. Documentation Pairing: Checks that each .windsurf file has a docs file
+#   4. Documentation Pairing: Checks that each customization file has a docs file
 #
 # PREREQUISITES:
 #   - No special dependencies required (uses standard bash tools)
@@ -28,7 +28,7 @@
 #   1 - One or more validations failed
 #
 # EXAMPLE OUTPUT:
-#   Validating: .windsurf/rules/language/typescript.md
+#   Validating: customizations/rules/language/typescript.md
 #     [PASS] YAML frontmatter found
 #     [PASS] Required field 'labels' present
 #     [PASS] Required field 'author' present
@@ -64,7 +64,7 @@ REQUIRED_SECTIONS=("Description" "Usage")
 RECOMMENDED_SECTIONS=("Examples")
 
 # Directories to validate
-WINDSURF_DIR=".windsurf"
+CUSTOMIZATIONS_DIR="customizations"
 DOCS_DIR="docs"
 
 # Counters for summary
@@ -267,10 +267,10 @@ check_documentation_pairing() {
     local missing_docs=0
     
     # Check rules
-    if [ -d "$PROJECT_ROOT/$WINDSURF_DIR/rules" ]; then
+    if [ -d "$PROJECT_ROOT/$CUSTOMIZATIONS_DIR/rules" ]; then
         while IFS= read -r -d '' file; do
-            # Convert .windsurf path to docs path
-            local relative_path="${file#$PROJECT_ROOT/$WINDSURF_DIR/}"
+            # Convert customizations path to docs path
+            local relative_path="${file#$PROJECT_ROOT/$CUSTOMIZATIONS_DIR/}"
             local docs_path="$PROJECT_ROOT/$DOCS_DIR/$relative_path"
             
             if [ -f "$docs_path" ]; then
@@ -280,13 +280,13 @@ check_documentation_pairing() {
                 print_info "  Expected at: $DOCS_DIR/$relative_path"
                 ((missing_docs++))
             fi
-        done < <(find "$PROJECT_ROOT/$WINDSURF_DIR/rules" -name "*.md" -print0 2>/dev/null)
+        done < <(find "$PROJECT_ROOT/$CUSTOMIZATIONS_DIR/rules" -name "*.md" -print0 2>/dev/null)
     fi
     
     # Check workflows
-    if [ -d "$PROJECT_ROOT/$WINDSURF_DIR/workflows" ]; then
+    if [ -d "$PROJECT_ROOT/$CUSTOMIZATIONS_DIR/workflows" ]; then
         while IFS= read -r -d '' file; do
-            local relative_path="${file#$PROJECT_ROOT/$WINDSURF_DIR/}"
+            local relative_path="${file#$PROJECT_ROOT/$CUSTOMIZATIONS_DIR/}"
             local docs_path="$PROJECT_ROOT/$DOCS_DIR/$relative_path"
             
             if [ -f "$docs_path" ]; then
@@ -296,7 +296,7 @@ check_documentation_pairing() {
                 print_info "  Expected at: $DOCS_DIR/$relative_path"
                 ((missing_docs++))
             fi
-        done < <(find "$PROJECT_ROOT/$WINDSURF_DIR/workflows" -name "*.md" -print0 2>/dev/null)
+        done < <(find "$PROJECT_ROOT/$CUSTOMIZATIONS_DIR/workflows" -name "*.md" -print0 2>/dev/null)
     fi
     
     if [ $missing_docs -eq 0 ]; then
@@ -411,7 +411,7 @@ else
     fi
     
     # Validate .windsurf files (if not docs-only)
-    if [ "$DOCS_ONLY" = false ] && [ -d "$WINDSURF_DIR" ]; then
+    if [ "$DOCS_ONLY" = false ] && [ -d "$CUSTOMIZATIONS_DIR" ]; then
         while IFS= read -r -d '' file; do
             ((TOTAL_FILES++))
             if validate_file "$file"; then
@@ -419,7 +419,7 @@ else
             else
                 ((FAILED_FILES++))
             fi
-        done < <(find "$WINDSURF_DIR" -name "*.md" -print0 2>/dev/null)
+        done < <(find "$CUSTOMIZATIONS_DIR" -name "*.md" -print0 2>/dev/null)
     fi
     
     # Check documentation pairing
