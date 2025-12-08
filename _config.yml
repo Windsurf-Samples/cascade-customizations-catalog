@@ -1,46 +1,117 @@
-# GitHub Pages configuration for Cascade Customizations Catalog
+# =============================================================================
+# JEKYLL CONFIGURATION FOR CASCADE CUSTOMIZATIONS CATALOG
+# =============================================================================
+#
+# PURPOSE:
+# This file configures Jekyll, the static site generator used to build the
+# Cascade Customizations Catalog website. Jekyll transforms Markdown files
+# into HTML pages that are deployed to GitHub Pages.
+#
+# FOR CONTRIBUTORS:
+# - You typically don't need to modify this file when adding new customizations
+# - Changes here affect how the entire site is built and structured
+# - Test any changes locally with: bundle exec jekyll serve
+#
+# WHEN TO MODIFY:
+# - Adding new Jekyll plugins
+# - Changing site metadata (title, description)
+# - Adjusting which files are included/excluded from the build
+# - Modifying URL structure or base paths
+#
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# SITE METADATA
+# -----------------------------------------------------------------------------
+# Basic information about the site displayed in browser tabs, search results,
+# and social media shares.
+
 title: Cascade Customizations Catalog
 description: Community-driven rules and workflows for Windsurf Cascade
+
+# The base URL where the site is hosted.
+# 'url' is the protocol and domain (e.g., https://example.github.io)
+# 'baseurl' is the path after the domain (e.g., /repo-name)
+# Together they form: https://windsurf-ai.github.io/cascade-customizations-catalog
 url: "https://windsurf-ai.github.io"
 baseurl: "/cascade-customizations-catalog"
 
-# Web UI directory
+# -----------------------------------------------------------------------------
+# DIRECTORY CONFIGURATION
+# -----------------------------------------------------------------------------
+# Custom directory settings for organizing the project.
+
+# Location of the web UI files (HTML, CSS, JavaScript)
 web_ui_dir: web-ui
 
-# Build settings
+# -----------------------------------------------------------------------------
+# BUILD SETTINGS
+# -----------------------------------------------------------------------------
+# Configure how Jekyll processes and renders content.
+
+# Markdown processor - kramdown is the default and most feature-rich option
+# Supports tables, footnotes, and other extended Markdown syntax
 markdown: kramdown
+
+# Syntax highlighter for code blocks in Markdown files
+# Rouge provides syntax highlighting for 100+ programming languages
 highlighter: rouge
+
+# Base theme for styling (provides default layouts and styles)
 theme: minima
 
-# Exclude files from processing
+# -----------------------------------------------------------------------------
+# FILE EXCLUSIONS
+# -----------------------------------------------------------------------------
+# Files and directories to exclude from the Jekyll build.
+# These files exist in the repo but shouldn't be part of the deployed site.
 exclude:
-  - README.md
-  - CONTRIBUTING.md
-  - LICENSE
-  - node_modules/
-  - .git/
-  - .gitignore
+  - README.md          # Repository documentation (not needed on live site)
+  - CONTRIBUTING.md    # Contributor guidelines (not needed on live site)
+  - LICENSE            # License file (not needed on live site)
+  - node_modules/      # Node.js dependencies (if any)
+  - .git/              # Git version control directory
+  - .gitignore         # Git ignore rules
 
-# Include files that start with underscore
+# -----------------------------------------------------------------------------
+# FILE INCLUSIONS
+# -----------------------------------------------------------------------------
+# Files that start with underscore are normally excluded by Jekyll.
+# List any underscore-prefixed files that should be included in the build.
 include:
-  - _config.yml
+  - _config.yml        # Include this config file in the build output
 
-# Plugin settings
+# -----------------------------------------------------------------------------
+# PLUGINS
+# -----------------------------------------------------------------------------
+# Jekyll plugins extend functionality. These are automatically loaded
+# when building the site.
 plugins:
-  - jekyll-feed
-  - jekyll-sitemap
+  - jekyll-feed        # Generates an Atom/RSS feed for the site
+  - jekyll-sitemap     # Generates a sitemap.xml for search engines
 
-# Collections for better organization
+# -----------------------------------------------------------------------------
+# COLLECTIONS
+# -----------------------------------------------------------------------------
+# Collections group related content together. Each collection can have
+# its own directory and configuration.
+#
+# 'output: false' means these files are processed but not rendered as
+# individual pages. They're used as data sources for the web UI.
 collections:
-  rules:
-    output: false
-  workflows:
-    output: false
+  rules:               # Collection for rule customizations
+    output: false      # Don't generate individual HTML pages for rules
+  workflows:           # Collection for workflow customizations
+    output: false      # Don't generate individual HTML pages for workflows
 
-# Default settings
+# -----------------------------------------------------------------------------
+# DEFAULT SETTINGS
+# -----------------------------------------------------------------------------
+# Apply default front matter values to files matching specific paths.
+# This reduces repetition in individual files.
 defaults:
   - scope:
-      path: "docs"
+      path: "docs"     # Apply to all files in the docs/ directory
     values:
-      layout: null
-      sitemap: false
+      layout: null     # Don't apply any layout template
+      sitemap: false   # Exclude from sitemap.xml generation

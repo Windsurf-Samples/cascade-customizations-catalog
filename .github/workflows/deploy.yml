@@ -1,51 +1,148 @@
-# Sample workflow for building and deploying a Jekyll site to GitHub Pages
+# =============================================================================
+# DEPLOY WORKFLOW FOR CASCADE CUSTOMIZATIONS CATALOG
+# =============================================================================
+#
+# PURPOSE:
+# This workflow automatically builds and deploys the Cascade Customizations
+# Catalog website to GitHub Pages whenever changes are pushed to the main branch.
+#
+# WHAT IT DOES:
+# 1. Checks out the repository code
+# 2. Builds the Jekyll static site (converts Markdown files to HTML)
+# 3. Deploys the built site to GitHub Pages
+#
+# FOR CONTRIBUTORS:
+# - This workflow runs automatically when you merge a PR to main
+# - You don't need to run this manually - just push your changes
+# - The site typically updates within 2-3 minutes after merge
+# - You can monitor the deployment status in the "Actions" tab on GitHub
+#
+# LOCAL DEVELOPMENT:
+# To test your changes locally before pushing, run:
+#   gem install bundler jekyll
+#   bundle exec jekyll serve
+# Then visit http://localhost:4000/cascade-customizations-catalog/
+#
+# =============================================================================
+
 name: Deploy Jekyll with GitHub Pages dependencies preinstalled
 
+# -----------------------------------------------------------------------------
+# TRIGGER CONDITIONS
+# -----------------------------------------------------------------------------
+# This section defines when the workflow runs.
 on:
-  # Runs on pushes targeting the default branch
+  # Automatically runs when code is pushed to the main branch.
+  # This includes direct pushes and merged pull requests.
   push:
     branches: ["main"]
 
-  # Allows you to run this workflow manually from the Actions tab
+  # Allows manual triggering from the GitHub Actions tab.
+  # Useful for re-deploying without code changes or debugging deployment issues.
+  # To use: Go to Actions > Select this workflow > Click "Run workflow"
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+# -----------------------------------------------------------------------------
+# PERMISSIONS
+# -----------------------------------------------------------------------------
+# These permissions are required for the workflow to:
+# - Read repository contents (contents: read)
+# - Write to GitHub Pages (pages: write)
+# - Create deployment tokens (id-token: write)
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+# -----------------------------------------------------------------------------
+# CONCURRENCY CONTROL
+# -----------------------------------------------------------------------------
+# Prevents multiple deployments from running simultaneously.
+# If a new push happens while a deployment is in progress:
+# - The in-progress deployment continues to completion
+# - Queued deployments are skipped (only the latest will run)
+# This ensures the site always reflects the latest code without interruption.
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
+# -----------------------------------------------------------------------------
+# JOBS
+# -----------------------------------------------------------------------------
 jobs:
-  # Build job
+  # ===========================================================================
+  # BUILD JOB
+  # ===========================================================================
+  # This job compiles the Jekyll site from source files.
+  # It converts Markdown files in docs/, windsurf/, and web-ui/ into
+  # a static HTML website that can be served by GitHub Pages.
   build:
     runs-on: ubuntu-latest
     steps:
+      # -----------------------------------------------------------------------
+      # Step 1: Checkout Repository
+      # -----------------------------------------------------------------------
+      # Downloads the repository code to the runner so it can be built.
+      # This includes all Markdown files, configuration, and web UI assets.
       - name: Checkout
         uses: actions/checkout@v4
+
+      # -----------------------------------------------------------------------
+      # Step 2: Setup GitHub Pages
+      # -----------------------------------------------------------------------
+      # Configures the build environment for GitHub Pages deployment.
+      # Sets up the correct base URL and other Pages-specific settings
+      # defined in _config.yml.
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
+      # -----------------------------------------------------------------------
+      # Step 3: Build with Jekyll
+      # -----------------------------------------------------------------------
+      # Runs Jekyll to transform the source files into a static website.
+      # Jekyll processes:
+      # - Markdown files → HTML pages
+      # - YAML frontmatter → Page metadata
+      # - Liquid templates → Dynamic content
+      # - SCSS/CSS → Stylesheets
+      # The output is placed in the _site/ directory.
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
         with:
           source: ./
           destination: ./_site
+
+      # -----------------------------------------------------------------------
+      # Step 4: Upload Build Artifact
+      # -----------------------------------------------------------------------
+      # Packages the built _site/ directory and uploads it as an artifact.
+      # This artifact is then used by the deploy job to publish to GitHub Pages.
+      # Artifacts are retained for 1 day by default.
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
 
-  # Deployment job
+  # ===========================================================================
+  # DEPLOY JOB
+  # ===========================================================================
+  # This job publishes the built site to GitHub Pages.
+  # It only runs after the build job completes successfully.
   deploy:
+    # Configure the deployment environment.
+    # The URL will be available at: https://windsurf-samples.github.io/cascade-customizations-catalog/
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    # Wait for the build job to complete before deploying.
+    # This ensures we only deploy successfully built sites.
     needs: build
     steps:
+      # -----------------------------------------------------------------------
+      # Step 1: Deploy to GitHub Pages
+      # -----------------------------------------------------------------------
+      # Takes the uploaded artifact from the build job and publishes it
+      # to GitHub Pages. After this step completes, the site is live.
+      # The deployment URL is output for reference in the workflow summary.
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
