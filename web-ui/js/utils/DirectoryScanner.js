@@ -91,9 +91,6 @@ export class DirectoryScanner {
                 ],
                 "security": [
                     "secure-coding"
-                ],
-                "style": [
-                    "style"
                 ]
             },
             "workflows": {
